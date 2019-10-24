@@ -25,12 +25,24 @@ namespace NWN_ModuleRunner
 
         private void Btn_Start_Click(object sender, EventArgs e)
         {
-            if (AreCoordinatesValid)
+            if (AreParametersValid)
                 PerformClick((int)X0.Value, (int)Y0.Value);
         }
 
         private void InitParams()
         {
+            for (int i = 1; i <= Screen.AllScreens.Length; ++i)
+                Cmb_Screens.Items.Add(i.ToString());
+
+            if (Cmb_Screens.Items.Count < 1)
+            {
+                MessageBox.Show("No screens are recognized.", "Error", MessageBoxButtons.OK);
+                Environment.Exit(0);
+                //Application.Exit();
+            }
+
+            Cmb_Screens.SelectedIndex = 0;
+
             int w = Screen.PrimaryScreen.Bounds.Width;
             int h = Screen.PrimaryScreen.Bounds.Height;
 
@@ -41,6 +53,15 @@ namespace NWN_ModuleRunner
 
             X0.Value = w / 2;
             Y0.Value = h / 2;
+        }
+
+        #region Form validity
+        private bool AreParametersValid
+        {
+            get
+            {
+                return AreCoordinatesValid && IsScreenValid;
+            }
         }
 
         private bool AreCoordinatesValid
@@ -55,6 +76,15 @@ namespace NWN_ModuleRunner
             }
         }
 
+        private bool IsScreenValid
+        {
+            get
+            {
+                return Cmb_Screens.SelectedIndex >= 0;
+            }
+        }
+        #endregion
+
         #region Mouse
         private void PerformClick()
         {
@@ -64,6 +94,7 @@ namespace NWN_ModuleRunner
         private void PerformClick(int x, int y)
         {
             Cursor.Position = new Point(x, y);
+
             PerformClick();
         }
         #endregion
