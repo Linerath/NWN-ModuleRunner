@@ -1,0 +1,1 @@
+On my home computers (Windows 10) button "Test module" in Aurora Toolset doesn't work. So i decided to write simple clicker that remembers points on the screen and performs module loading for me. Actually it can be used in any situations that demands mouse click automation.
