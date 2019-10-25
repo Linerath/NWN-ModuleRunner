@@ -41,7 +41,7 @@ namespace NWN_ModuleRunner.Forms
 
             if (Cmb_Screens.Items.Count < 1)
             {
-                MessageBox.Show("No screens are recognized.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Error("No screens are recognized.");
                 Environment.Exit(0);
             }
 
@@ -76,7 +76,7 @@ namespace NWN_ModuleRunner.Forms
                 {
                     if (Cursor.Position.X > X0.Maximum || Cursor.Position.Y > Y0.Maximum)
                     {
-                        MessageBox.Show("Coordinates are out of boundaries", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Error("Coordinates are out of boundaries");
                     }
                     else
                     {
@@ -99,6 +99,11 @@ namespace NWN_ModuleRunner.Forms
             }
 
             parameters.Points[pointIndex] = new Point(x, y);
+        }
+
+        private void Error(String text)
+        {
+            MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void BindingOn()
@@ -169,7 +174,7 @@ namespace NWN_ModuleRunner.Forms
             if (AreParametersValid)
                 PerformClick((int)X0.Value, (int)Y0.Value);
             else
-                MessageBox.Show("One or more parameter is invalid.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Error("One or more parameter is invalid.");
         }
 
         private void Coordinates_ValueChanged(object sender, EventArgs e)
@@ -201,7 +206,7 @@ namespace NWN_ModuleRunner.Forms
                 if (parameters.SaveParameters)
                 {
                     if (!ParametersHelper.TryWriteParameters(parameters))
-                        MessageBox.Show("Error occured while saving parameters. Open log file for details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Error("Error occured while saving parameters. Open log file for details.");
                 }
             }
         }
