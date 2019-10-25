@@ -76,13 +76,17 @@ namespace NWN_ModuleRunner.Services
             int h = Screen.PrimaryScreen.Bounds.Height;
 
             result.Points.Add(new Point { X = w / 2, Y = h / 2 });
+            result.SaveParameters = true;
+            result.ShowFinalDialog = true;
 
             return result;
         }
     }
 
-    internal sealed class Parameters
+    public sealed class Parameters
     {
         public List<Point> Points { get; set; } = new List<Point>();
+        public bool SaveParameters { get; set; }
+        public bool ShowFinalDialog { get; set; }
     }
 }

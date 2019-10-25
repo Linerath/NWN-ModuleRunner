@@ -1,27 +1,22 @@
-﻿using NWN_ModuleRunner.Properties;
-using NWN_ModuleRunner.Services;
+﻿using NWN_ModuleRunner.Services;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace NWN_ModuleRunner
+namespace NWN_ModuleRunner.Forms
 {
     public partial class MainForm : Form
     {
         private Parameters parameters = null;
         private IntPtr hookId = IntPtr.Zero;
 
+        private bool exit = false;
+
         public MainForm()
         {
             InitializeComponent();
+
             parameters = ParametersHelper.ReadOrDefaultParameters();
             SyncScreenParams();
             SyncParams();
@@ -155,17 +150,26 @@ namespace NWN_ModuleRunner
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (hookId.ToInt64() > 0)
-                PInvokeHelper.UnhookWindowsHookEx(hookId);
-
-            var answer = MessageBox.Show("Save parameters?", "Save", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (answer == DialogResult.Yes)
+            if (parameters.ShowFinalDialog)
             {
-                if (parameters == null)
+                if (!exit)
                 {
-                    MessageBox.Show("Invalid parameters. Saving is aborted.");
+                    if (hookId.ToInt64() > 0)
+                        PInvokeHelper.UnhookWindowsHookEx(hookId);
+
+                    ExitForm exitForm = new ExitForm(parameters);
+                    exitForm.Show(this);
+                    exit = true;
+                    exitForm.FormClosed += delegate (object obj, FormClosedEventArgs agrs)
+                    {
+                        Application.Exit();
+                    };
+                    e.Cancel = true;
                 }
-                else
+            }
+            else
+            {
+                if (parameters.SaveParameters)
                 {
                     if (!ParametersHelper.TryWriteParameters(parameters))
                         MessageBox.Show("Error occured while saving parameters. Open log file for details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);

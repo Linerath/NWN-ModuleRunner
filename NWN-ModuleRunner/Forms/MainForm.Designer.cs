@@ -1,4 +1,4 @@
-﻿namespace NWN_ModuleRunner
+﻿namespace NWN_ModuleRunner.Forms
 {
     partial class MainForm
     {
