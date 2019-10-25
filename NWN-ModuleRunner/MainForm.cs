@@ -1,4 +1,5 @@
 ﻿using NWN_ModuleRunner.Properties;
+using NWN_ModuleRunner.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,18 +16,22 @@ namespace NWN_ModuleRunner
 {
     public partial class MainForm : Form
     {
+        private Parameters parameters = null;
         private IntPtr hookId = IntPtr.Zero;
 
         public MainForm()
         {
             InitializeComponent();
-            InitParams();
+            parameters = ParametersHelper.ReadOrDefaultParameters();
+            SyncScreenParams();
+            SyncParams();
 
             hookId = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, KeyboardProc, IntPtr.Zero, AppDomain.GetCurrentThreadId());
         }
 
-        private void InitParams()
+        private void SyncScreenParams()
         {
+            // Screens.
             for (int i = 1; i <= Screen.AllScreens.Length; ++i)
                 Cmb_Screens.Items.Add(i.ToString());
 
@@ -38,16 +43,20 @@ namespace NWN_ModuleRunner
 
             Cmb_Screens.SelectedIndex = 0;
 
-            int w = Screen.PrimaryScreen.Bounds.Width;
-            int h = Screen.PrimaryScreen.Bounds.Height;
-
+            // Resolution.
             X0.Minimum = 0;
-            X0.Maximum = w;
+            X0.Maximum = Screen.PrimaryScreen.Bounds.Width;
             Y0.Minimum = 0;
-            Y0.Maximum = h;
+            Y0.Maximum = Screen.PrimaryScreen.Bounds.Height;
+        }
 
-            X0.Value = w / 2;
-            Y0.Value = h / 2;
+        private void SyncParams()
+        {
+            if (parameters == null)
+                return;
+
+            X0.Value = parameters.Points.FirstOrDefault().X;
+            Y0.Value = parameters.Points.FirstOrDefault().Y;
         }
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
@@ -65,14 +74,25 @@ namespace NWN_ModuleRunner
                     }
                     else
                     {
-                        X0.Value = Cursor.Position.X;
-                        Y0.Value = Cursor.Position.Y;
+                        ChangePoint(0, Cursor.Position.X, Cursor.Position.Y);
+                        SyncParams();
                     }
                 }
                 #endregion
             }
 
             return PInvokeHelper.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
+        }
+
+        private void ChangePoint(int pointIndex, int x, int y)
+        {
+            if (pointIndex < 0 || pointIndex >= parameters.Points.Count)
+            {
+                MessageBox.Show("Message has occured. Open log file for details.");
+                return;
+            }
+
+            parameters.Points[pointIndex] = new Point(x, y);
         }
 
         private void UpdateCursorPosition()
@@ -137,6 +157,20 @@ namespace NWN_ModuleRunner
         {
             if (hookId.ToInt64() > 0)
                 PInvokeHelper.UnhookWindowsHookEx(hookId);
+
+            var answer = MessageBox.Show("Save parameters?", "Save", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (answer == DialogResult.Yes)
+            {
+                if (parameters == null)
+                {
+                    MessageBox.Show("Invalid parameters. Saving is aborted.");
+                }
+                else
+                {
+                    if (!ParametersHelper.TryWriteParameters(parameters))
+                        MessageBox.Show("Error occured while saving parameters. Open log file for details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
         #endregion
     }
