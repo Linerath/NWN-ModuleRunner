@@ -60,6 +60,7 @@
             this.X0.Name = "X0";
             this.X0.Size = new System.Drawing.Size(84, 25);
             this.X0.TabIndex = 1;
+            this.X0.ValueChanged += new System.EventHandler(this.Coordinates_ValueChanged);
             // 
             // label1
             // 
@@ -88,6 +89,7 @@
             this.Y0.Name = "Y0";
             this.Y0.Size = new System.Drawing.Size(84, 25);
             this.Y0.TabIndex = 3;
+            this.Y0.ValueChanged += new System.EventHandler(this.Coordinates_ValueChanged);
             // 
             // Cmb_Screens
             // 

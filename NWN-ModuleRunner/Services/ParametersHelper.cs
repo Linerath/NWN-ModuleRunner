@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace NWN_ModuleRunner.Services
@@ -46,7 +47,6 @@ namespace NWN_ModuleRunner.Services
 
             try
             {
-
                 using (JsonTextWriter jWriter = new JsonTextWriter(new StreamWriter(PARAMETERS_PATH)))
                 {
                     JsonSerializer serializer = new JsonSerializer();
@@ -83,10 +83,57 @@ namespace NWN_ModuleRunner.Services
         }
     }
 
-    public sealed class Parameters
+    public sealed class Parameters : ICloneable
     {
         public List<Point> Points { get; set; } = new List<Point>();
         public bool SaveParameters { get; set; }
         public bool ShowFinalDialog { get; set; }
+
+        public object Clone()
+        {
+            return new Parameters
+            {
+                Points = Points.ToList(),
+                SaveParameters = SaveParameters,
+                ShowFinalDialog = ShowFinalDialog,
+            };
+        }
+
+        public bool Equals(Parameters paramsObj)
+        {
+            if (Object.ReferenceEquals(this, paramsObj))
+                return true;
+
+            return paramsObj != null
+                && ((Points == null && paramsObj.Points == null) || (Points != null && paramsObj.Points != null))
+                && Points.All(x => paramsObj.Points.Contains(x))
+                && SaveParameters == paramsObj.SaveParameters
+                && ShowFinalDialog == paramsObj.ShowFinalDialog;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Parameters);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash;
+
+            if (Points?.Count > 0)
+            {
+                hash = Points[0].X ^ Points[0].Y;
+                foreach (var item in Points)
+                {
+                    hash = hash * (item.X ^ item.Y);
+                }
+            }
+            else
+            {
+                hash = Convert.ToInt32(SaveParameters) * 1 + Convert.ToInt32(ShowFinalDialog) * 2;
+            }
+
+            return hash;
+        }
     }
 }

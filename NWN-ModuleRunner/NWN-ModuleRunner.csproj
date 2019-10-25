@@ -102,9 +102,8 @@
   <ItemGroup>
     <None Include="bin\Debug\nwn.ico" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <None Include="Resources\nwn.ico.ico" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

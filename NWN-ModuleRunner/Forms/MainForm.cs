@@ -8,18 +8,27 @@ namespace NWN_ModuleRunner.Forms
 {
     public partial class MainForm : Form
     {
+        private Parameters prevParameters = null;
         private Parameters parameters = null;
         private IntPtr hookId = IntPtr.Zero;
 
         private bool exit = false;
+
+        private Func<bool> areParametersChanged;
 
         public MainForm()
         {
             InitializeComponent();
 
             parameters = ParametersHelper.ReadOrDefaultParameters();
+            prevParameters = parameters.Clone() as Parameters;
             SyncScreenParams();
-            SyncParams();
+            SyncUIParams();
+
+            areParametersChanged = () =>
+            {
+                return !parameters.Equals(prevParameters);
+            };
 
             hookId = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, KeyboardProc, IntPtr.Zero, AppDomain.GetCurrentThreadId());
         }
@@ -45,13 +54,15 @@ namespace NWN_ModuleRunner.Forms
             Y0.Maximum = Screen.PrimaryScreen.Bounds.Height;
         }
 
-        private void SyncParams()
+        private void SyncUIParams()
         {
             if (parameters == null)
                 return;
 
-            X0.Value = parameters.Points.FirstOrDefault().X;
-            Y0.Value = parameters.Points.FirstOrDefault().Y;
+            BindingOff();
+            X0.Value = parameters.Points[0].X;
+            Y0.Value = parameters.Points[0].Y;
+            BindingOn();
         }
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
@@ -70,7 +81,7 @@ namespace NWN_ModuleRunner.Forms
                     else
                     {
                         ChangePoint(0, Cursor.Position.X, Cursor.Position.Y);
-                        SyncParams();
+                        SyncUIParams();
                     }
                 }
                 #endregion
@@ -90,6 +101,19 @@ namespace NWN_ModuleRunner.Forms
             parameters.Points[pointIndex] = new Point(x, y);
         }
 
+        private void BindingOn()
+        {
+            X0.ValueChanged += Coordinates_ValueChanged;
+            Y0.ValueChanged += Coordinates_ValueChanged;
+        }
+
+        private void BindingOff()
+        {
+            X0.ValueChanged -= Coordinates_ValueChanged;
+            Y0.ValueChanged -= Coordinates_ValueChanged;
+        }
+
+        // PROTOTYPE
         private void UpdateCursorPosition()
         {
             //Lbl_CursorXY.Text = $"{Cursor.Position.X};{Cursor.Position.Y}";
@@ -148,11 +172,16 @@ namespace NWN_ModuleRunner.Forms
                 MessageBox.Show("One or more parameter is invalid.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        private void Coordinates_ValueChanged(object sender, EventArgs e)
+        {
+            ChangePoint(0, (int)X0.Value, (int)Y0.Value);
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (parameters.ShowFinalDialog)
             {
-                if (!exit)
+                if (!exit && areParametersChanged())
                 {
                     if (hookId.ToInt64() > 0)
                         PInvokeHelper.UnhookWindowsHookEx(hookId);
