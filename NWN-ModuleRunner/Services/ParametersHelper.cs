@@ -10,7 +10,7 @@ namespace NWN_ModuleRunner.Services
 {
     internal static class ParametersHelper
     {
-        public const String PARAMETERS_PATH = "parameters.json";
+        public const String PARAMETERS_PATH = "../../parameters.json";
 
         public static Parameters ReadOrDefaultParameters()
         {

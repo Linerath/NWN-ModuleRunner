@@ -38,6 +38,7 @@
             this.Lbl_Cursor = new System.Windows.Forms.Label();
             this.Lbl_CursorXY = new System.Windows.Forms.Label();
             this.Lbl_Hint0 = new System.Windows.Forms.Label();
+            this.Lbl_Hint1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.X0)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.Y0)).BeginInit();
             this.SuspendLayout();
@@ -136,17 +137,28 @@
             // 
             this.Lbl_Hint0.AutoSize = true;
             this.Lbl_Hint0.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Lbl_Hint0.Location = new System.Drawing.Point(12, 124);
+            this.Lbl_Hint0.Location = new System.Drawing.Point(12, 146);
             this.Lbl_Hint0.Name = "Lbl_Hint0";
             this.Lbl_Hint0.Size = new System.Drawing.Size(345, 17);
             this.Lbl_Hint0.TabIndex = 9;
             this.Lbl_Hint0.Text = "Press \"F1\" to set coordinates from current cursor position";
             // 
+            // Lbl_Hint1
+            // 
+            this.Lbl_Hint1.AutoSize = true;
+            this.Lbl_Hint1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Lbl_Hint1.Location = new System.Drawing.Point(129, 129);
+            this.Lbl_Hint1.Name = "Lbl_Hint1";
+            this.Lbl_Hint1.Size = new System.Drawing.Size(112, 17);
+            this.Lbl_Hint1.TabIndex = 10;
+            this.Lbl_Hint1.Text = "Press \"F5\" to start";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(367, 151);
+            this.ClientSize = new System.Drawing.Size(367, 172);
+            this.Controls.Add(this.Lbl_Hint1);
             this.Controls.Add(this.Lbl_Hint0);
             this.Controls.Add(this.Lbl_CursorXY);
             this.Controls.Add(this.Lbl_Cursor);
@@ -181,6 +193,7 @@
         private System.Windows.Forms.Label Lbl_Cursor;
         private System.Windows.Forms.Label Lbl_CursorXY;
         private System.Windows.Forms.Label Lbl_Hint0;
+        private System.Windows.Forms.Label Lbl_Hint1;
     }
 }
 

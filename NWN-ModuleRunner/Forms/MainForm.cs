@@ -1,7 +1,9 @@
 ﻿using NWN_ModuleRunner.Services;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace NWN_ModuleRunner.Forms
@@ -10,7 +12,7 @@ namespace NWN_ModuleRunner.Forms
     {
         private Parameters prevParameters = null;
         private Parameters parameters = null;
-        private IntPtr hookId = IntPtr.Zero;
+        private IntPtr[] hookIds = new IntPtr[] { IntPtr.Zero, IntPtr.Zero };
 
         private bool exit = false;
 
@@ -30,7 +32,17 @@ namespace NWN_ModuleRunner.Forms
                 return !parameters.Equals(prevParameters);
             };
 
-            hookId = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, KeyboardProc, IntPtr.Zero, AppDomain.GetCurrentThreadId());
+            hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, KeyboardProc, IntPtr.Zero, AppDomain.GetCurrentThreadId());
+            hookIds[1] = PInvokeHelper.SetKeyboardLLHook(KeyboardProcLL);
+        }
+
+
+        private void Start()
+        {
+            if (AreParametersValid)
+                PerformClick((int)X0.Value, (int)Y0.Value);
+            else
+                Error("One or more parameter is invalid.");
         }
 
         private void SyncScreenParams()
@@ -67,6 +79,7 @@ namespace NWN_ModuleRunner.Forms
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
         {
+            //if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
             if (code == 3)
             {
                 #region K
@@ -83,6 +96,23 @@ namespace NWN_ModuleRunner.Forms
                         ChangePoint(0, Cursor.Position.X, Cursor.Position.Y);
                         SyncUIParams();
                     }
+                }
+                #endregion
+            }
+
+            return PInvokeHelper.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
+        }
+
+        private int KeyboardProcLL(int code, IntPtr wParam, IntPtr lParam)
+        {
+            if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
+            {
+                #region K
+                Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
+
+                if (keyPressed == Keys.F5)
+                {
+                    Start();
                 }
                 #endregion
             }
@@ -171,10 +201,7 @@ namespace NWN_ModuleRunner.Forms
         #region Events
         private void Btn_Start_Click(object sender, EventArgs e)
         {
-            if (AreParametersValid)
-                PerformClick((int)X0.Value, (int)Y0.Value);
-            else
-                Error("One or more parameter is invalid.");
+            Start();
         }
 
         private void Coordinates_ValueChanged(object sender, EventArgs e)
@@ -188,8 +215,11 @@ namespace NWN_ModuleRunner.Forms
             {
                 if (!exit && areParametersChanged())
                 {
-                    if (hookId.ToInt64() > 0)
-                        PInvokeHelper.UnhookWindowsHookEx(hookId);
+                    foreach (var hookId in hookIds)
+                    {
+                        if (hookId.ToInt64() > 0)
+                            PInvokeHelper.UnhookWindowsHookEx(hookId);
+                    }
 
                     ExitForm exitForm = new ExitForm(parameters);
                     exitForm.Show(this);

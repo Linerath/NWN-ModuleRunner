@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace NWN_ModuleRunner.Services
 {
     internal static class PInvokeHelper
     {
+        public const int WM_KEYDOWN = 0x0100;
+
         [DllImport("User32.dll")]
         public static extern void mouse_event(uint dwFlags, uint dx, uint dy, uint dwData, IntPtr dwExtraInfo);
         [DllImport("User32.dll")]
@@ -13,6 +16,17 @@ namespace NWN_ModuleRunner.Services
         public static extern bool UnhookWindowsHookEx(IntPtr hhk);
         [DllImport("user32.dll")]
         public static extern int CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+        public static IntPtr SetKeyboardLLHook(HookProc proc)
+        {
+            using (Process curProcess = Process.GetCurrentProcess())
+            using (ProcessModule curModule = curProcess.MainModule)
+            {
+                return SetWindowsHookEx(HookType.WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
+            }
+        }
 
         internal delegate int HookProc(int code, IntPtr wParam, IntPtr lParam);
 
