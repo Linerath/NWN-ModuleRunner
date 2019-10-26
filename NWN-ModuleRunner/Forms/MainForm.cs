@@ -65,6 +65,13 @@ namespace NWN_ModuleRunner.Forms
                 Error("One or more parameter is invalid.");
         }
 
+        private void AddNew(Click click = null)
+        {
+            parameters.Clicks.Add(click ?? new Click());
+            SyncUIParams();
+            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
+        }
+
         private void SyncScreenParams()
         {
             // Screens.
@@ -179,7 +186,7 @@ namespace NWN_ModuleRunner.Forms
                         Text = "clone",
                         Font = new Font("Segoe UI", 8),
                         Size = new Size(50, 23),
-                        Location = new Point(282, 107),
+                        Location = new Point(300, 107),
                     };
                     clone.Click += Btn_Clone_Click;
 
@@ -222,6 +229,7 @@ namespace NWN_ModuleRunner.Forms
         {
             Btn_BGMode.Text = $"Turn BG mode {(bgMode ? "off" : "on")}";
             Lbl_Hint0.Visible = bgMode;
+            Lbl_Hint1.Visible = bgMode;
         }
 
         private void NormalizeParameters()
@@ -268,13 +276,17 @@ namespace NWN_ModuleRunner.Forms
             {
                 Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
 
-                if (keyPressed == Keys.F9)
+                if (keyPressed == Keys.F5)
+                {
+                    Start();
+                }
+                else if (keyPressed == Keys.F9)
                 {
                     ChangeCurrentPoint();
                 }
                 else if (keyPressed == Keys.F12)
                 {
-                    Start();
+                    AddNew();
                 }
             }
 
@@ -507,16 +519,12 @@ namespace NWN_ModuleRunner.Forms
             Click click = GetCurrentClick();
             Click copy = click.Clone() as Click;
 
-            parameters.Clicks.Add(copy);
-            SyncUIParams();
-            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
+            AddNew(copy);
         }
 
         private void Btn_Add_Click(object sender, EventArgs e)
         {
-            parameters.Clicks.Add(new Click());
-            SyncUIParams();
-            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
+            AddNew();
         }
 
         private void Btn_Remove_Click(object sender, EventArgs e)
@@ -538,6 +546,13 @@ namespace NWN_ModuleRunner.Forms
                         Tabs_Clicks.SelectedIndex = index - 1;
                 }
             }
+        }
+
+        private void Btn_Clear_Click(object sender, EventArgs e)
+        {
+            parameters.Clicks = null;
+            NormalizeParameters();
+            SyncUIParams();
         }
 
         private void Btn_BGMode_Click(object sender, EventArgs e)
