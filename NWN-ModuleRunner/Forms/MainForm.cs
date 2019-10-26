@@ -1,4 +1,5 @@
-﻿using NWN_ModuleRunner.Services;
+﻿using NWN_ModuleRunner.Controls;
+using NWN_ModuleRunner.Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,15 +15,22 @@ namespace NWN_ModuleRunner.Forms
         private Parameters parameters = null;
         private IntPtr[] hookIds = new IntPtr[] { IntPtr.Zero, IntPtr.Zero };
 
+        private PInvokeHelper.HookProc keyboardDelegate = null;
+        private PInvokeHelper.HookProc keyboardLLDelegate = null;
+        private Func<bool> areParametersChanged;
+
         private bool exit = false;
 
-        private Func<bool> areParametersChanged;
 
         public MainForm()
         {
             InitializeComponent();
 
+            keyboardDelegate = new PInvokeHelper.HookProc(KeyboardProc);
+            keyboardLLDelegate = new PInvokeHelper.HookProc(KeyboardProcLL);
+
             parameters = ParametersHelper.ReadOrDefaultParameters();
+            FillEmpyClicks();
             prevParameters = parameters.Clone() as Parameters;
             SyncScreenParams();
             SyncUIParams();
@@ -32,15 +40,20 @@ namespace NWN_ModuleRunner.Forms
                 return !parameters.Equals(prevParameters);
             };
 
-            hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, KeyboardProc, IntPtr.Zero, AppDomain.GetCurrentThreadId());
-            hookIds[1] = PInvokeHelper.SetKeyboardLLHook(KeyboardProcLL);
+            hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, keyboardDelegate, IntPtr.Zero, AppDomain.GetCurrentThreadId());
+            hookIds[1] = PInvokeHelper.SetKeyboardLLHook(keyboardLLDelegate);
         }
 
 
         private void Start()
         {
             if (AreParametersValid)
-                PerformClick((int)X0.Value, (int)Y0.Value);
+            {
+                foreach (var click in parameters.Clicks)
+                {
+                    PerformClick(click.Point.X, click.Point.Y);
+                }
+            }
             else
                 Error("One or more parameter is invalid.");
         }
@@ -58,12 +71,6 @@ namespace NWN_ModuleRunner.Forms
             }
 
             Cmb_Screens.SelectedIndex = 0;
-
-            // Resolution.
-            X0.Minimum = 0;
-            X0.Maximum = Screen.PrimaryScreen.Bounds.Width;
-            Y0.Minimum = 0;
-            Y0.Maximum = Screen.PrimaryScreen.Bounds.Height;
         }
 
         private void SyncUIParams()
@@ -72,9 +79,88 @@ namespace NWN_ModuleRunner.Forms
                 return;
 
             BindingOff();
-            X0.Value = parameters.Points[0].X;
-            Y0.Value = parameters.Points[0].Y;
+
+            if (Tabs_Clicks.TabCount != parameters.Clicks.Count)
+            {
+                Tabs_Clicks.TabPages.Clear();
+
+                for (int i = 0; i < parameters.Clicks.Count; ++i)
+                {
+                    Click click = parameters.Clicks[i];
+
+                    Tabs_Clicks.TabPages.Add($"#{i + 1}");
+
+                    // X
+                    Label x = new Label()
+                    {
+                        Text = "X",
+                        Font = new Font("Segoe UI", 10),
+                        Size = new Size(19, 17),
+                        Location = new Point(27, 34),
+                    };
+                    NumericUpDownMeta nud_x = new NumericUpDownMeta(click)
+                    {
+                        Minimum = 0,
+                        Maximum = Screen.PrimaryScreen.Bounds.Width,
+                        Value = click.Point.X,
+                        Font = new Font("Segoe UI", 10),
+                        Size = new Size(84, 25),
+                        Location = new Point(52, 32),
+                        Name = "NUD_X",
+                    };
+
+                    // Y
+                    Label y = new Label()
+                    {
+                        Text = "Y",
+                        Font = new Font("Segoe UI", 10),
+                        Size = new Size(19, 17),
+                        Location = new Point(27, 65),
+                    };
+                    NumericUpDownMeta nud_y = new NumericUpDownMeta(click)
+                    {
+                        Minimum = 0,
+                        Maximum = Screen.PrimaryScreen.Bounds.Height,
+                        Value = click.Point.Y,
+                        Font = new Font("Segoe UI", 10),
+                        Size = new Size(84, 25),
+                        Location = new Point(52, 63),
+                        Name = "NUD_Y",
+                    };
+
+                    Tabs_Clicks.TabPages[i].Controls.Add(x);
+                    Tabs_Clicks.TabPages[i].Controls.Add(nud_x);
+                    Tabs_Clicks.TabPages[i].Controls.Add(y);
+                    Tabs_Clicks.TabPages[i].Controls.Add(nud_y);
+                }
+            }
+            else
+            {
+                foreach (TabPage tabPage in Tabs_Clicks.TabPages)
+                {
+                    (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
+
+                    Click click = NUDs.Item1.Click;
+
+                    NUDs.Item1.Value = click.Point.X;
+                    NUDs.Item2.Value = click.Point.Y;
+                }
+            }
+
+            Btn_Remove.Enabled = parameters.Clicks.Count > 1;
+
             BindingOn();
+        }
+
+        private void FillEmpyClicks()
+        {
+            if (parameters == null)
+                return;
+
+            if (parameters.Clicks == null)
+                parameters.Clicks = new List<Click>(10);
+            if (parameters.Clicks.Count <= 0)
+                parameters.Clicks.Add(new Click());
         }
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
@@ -87,13 +173,15 @@ namespace NWN_ModuleRunner.Forms
 
                 if (keyPressed == Keys.F1)
                 {
-                    if (Cursor.Position.X > X0.Maximum || Cursor.Position.Y > Y0.Maximum)
+                    (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
+
+                    if (Cursor.Position.X > NUDs.Item1.Maximum || Cursor.Position.Y > NUDs.Item2.Maximum)
                     {
                         Error("Coordinates are out of boundaries");
                     }
                     else
                     {
-                        ChangePoint(0, Cursor.Position.X, Cursor.Position.Y);
+                        ChangePoint(Cursor.Position.X, Cursor.Position.Y);
                         SyncUIParams();
                     }
                 }
@@ -107,45 +195,97 @@ namespace NWN_ModuleRunner.Forms
         {
             if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
             {
-                #region K
                 Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
 
                 if (keyPressed == Keys.F5)
                 {
                     Start();
                 }
-                #endregion
             }
 
             return PInvokeHelper.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
         }
 
-        private void ChangePoint(int pointIndex, int x, int y)
+        private void ChangePoint(int x, int y)
         {
-            if (pointIndex < 0 || pointIndex >= parameters.Points.Count)
+            ChangePoint(Tabs_Clicks.SelectedTab, x, y);
+        }
+
+        private void ChangePoint(TabPage tabPage, int x, int y)
+        {
+            if (tabPage == null)
             {
-                MessageBox.Show("Message has occured. Open log file for details.");
+                MessageBox.Show("Critical message has occured. Open log file for details.");
                 return;
             }
 
-            parameters.Points[pointIndex] = new Point(x, y);
+            (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
+
+            ChangePoint(NUDs.Item1.Click, x, y);
+        }
+
+        private void ChangePoint(Click click, int x, int y)
+        {
+            if (click == null)
+            {
+                MessageBox.Show("Critical message has occured. Open log file for details.");
+                return;
+            }
+
+            var e = parameters.Clicks.FirstOrDefault(c => c == click);
+
+            if (e != null)
+            {
+                e.Point = new Point(x, y);
+            }
+        }
+
+        private void BindingOn()
+        {
+            foreach (TabPage tab in Tabs_Clicks.TabPages)
+            {
+                if (tab.Controls["NUD_X"] is NumericUpDownMeta nudX)
+                {
+                    nudX.ValueChanged += Coordinates_ValueChanged;
+                }
+                if (tab.Controls["NUD_Y"] is NumericUpDownMeta nudY)
+                {
+                    nudY.ValueChanged += Coordinates_ValueChanged;
+                }
+            }
+        }
+
+        private void BindingOff()
+        {
+            foreach (TabPage tab in Tabs_Clicks.TabPages)
+            {
+                if (tab.Controls["NUD_X"] is NumericUpDownMeta nudX)
+                {
+                    nudX.ValueChanged -= Coordinates_ValueChanged;
+                }
+                if (tab.Controls["NUD_Y"] is NumericUpDownMeta nudY)
+                {
+                    nudY.ValueChanged -= Coordinates_ValueChanged;
+                }
+            }
+        }
+
+        private (NumericUpDownMeta, NumericUpDownMeta) GetCurrentCoordinatesControls()
+        {
+            return GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
+        }
+
+        private (NumericUpDownMeta, NumericUpDownMeta) GetTabCoordinatesControls(TabPage tabPage)
+        {
+            NumericUpDownMeta x = tabPage.Controls["NUD_X"] as NumericUpDownMeta;
+            NumericUpDownMeta y = tabPage.Controls["NUD_Y"] as NumericUpDownMeta;
+
+            return (x, y);
         }
 
         private void Error(String text)
         {
             MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private void BindingOn()
-        {
-            X0.ValueChanged += Coordinates_ValueChanged;
-            Y0.ValueChanged += Coordinates_ValueChanged;
-        }
-
-        private void BindingOff()
-        {
-            X0.ValueChanged -= Coordinates_ValueChanged;
-            Y0.ValueChanged -= Coordinates_ValueChanged;
         }
 
         // PROTOTYPE
@@ -170,8 +310,17 @@ namespace NWN_ModuleRunner.Forms
                 int w = Screen.PrimaryScreen.Bounds.Width;
                 int h = Screen.PrimaryScreen.Bounds.Height;
 
-                return X0.Value >= 0 && X0.Value <= w
-                    && Y0.Value >= 0 && Y0.Value <= h;
+                bool result = true;
+                foreach (TabPage item in Tabs_Clicks.TabPages)
+                {
+                    (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(item);
+
+                    result = result
+                        && NUDs.Item1.Value >= 0 && NUDs.Item1.Value <= w
+                        && NUDs.Item2.Value >= 0 && NUDs.Item2.Value <= h;
+                }
+
+                return result;
             }
         }
 
@@ -206,7 +355,29 @@ namespace NWN_ModuleRunner.Forms
 
         private void Coordinates_ValueChanged(object sender, EventArgs e)
         {
-            ChangePoint(0, (int)X0.Value, (int)Y0.Value);
+            if (sender is NumericUpDownMeta nud && nud.Parent is TabPage tabPage)
+            {
+                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
+                ChangePoint(nud.Click, (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
+            }
+        }
+
+        private void Btn_Add_Click(object sender, EventArgs e)
+        {
+            parameters.Clicks.Add(new Click());
+            SyncUIParams();
+        }
+
+        private void Btn_Remove_Click(object sender, EventArgs e)
+        {
+            if (parameters.Clicks.Count > 1)
+            {
+                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
+
+                parameters.Clicks.Remove(NUDs.Item1.Click);
+
+                SyncUIParams();
+            }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)

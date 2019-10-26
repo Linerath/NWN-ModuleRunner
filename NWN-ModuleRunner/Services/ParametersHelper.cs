@@ -75,7 +75,10 @@ namespace NWN_ModuleRunner.Services
             int w = Screen.PrimaryScreen.Bounds.Width;
             int h = Screen.PrimaryScreen.Bounds.Height;
 
-            result.Points.Add(new Point { X = w / 2, Y = h / 2 });
+            result.Clicks.Add(new Click
+            {
+                Point = new Point(w / 2, h / 2),
+            });
             result.SaveParameters = true;
             result.ShowFinalDialog = true;
 
@@ -85,18 +88,27 @@ namespace NWN_ModuleRunner.Services
 
     public sealed class Parameters : ICloneable
     {
-        public List<Point> Points { get; set; } = new List<Point>();
+        public List<Click> Clicks { get; set; } = new List<Click>();
         public bool SaveParameters { get; set; }
         public bool ShowFinalDialog { get; set; }
 
         public object Clone()
         {
-            return new Parameters
+            Parameters result = new Parameters
             {
-                Points = Points.ToList(),
                 SaveParameters = SaveParameters,
                 ShowFinalDialog = ShowFinalDialog,
             };
+
+            foreach (var item in Clicks)
+            {
+                result.Clicks.Add(new Click
+                {
+                    Point = item.Point,
+                });
+            }
+
+            return result;
         }
 
         public bool Equals(Parameters paramsObj)
@@ -105,8 +117,8 @@ namespace NWN_ModuleRunner.Services
                 return true;
 
             return paramsObj != null
-                && ((Points == null && paramsObj.Points == null) || (Points != null && paramsObj.Points != null))
-                && Points.All(x => paramsObj.Points.Contains(x))
+                && ((Clicks == null && paramsObj.Clicks == null) || (Clicks != null && paramsObj.Clicks != null))
+                && Clicks.All(x => paramsObj.Clicks.Any(y => y.Point == x.Point))
                 && SaveParameters == paramsObj.SaveParameters
                 && ShowFinalDialog == paramsObj.ShowFinalDialog;
         }
@@ -120,12 +132,12 @@ namespace NWN_ModuleRunner.Services
         {
             int hash;
 
-            if (Points?.Count > 0)
+            if (Clicks?.Count > 0)
             {
-                hash = Points[0].X ^ Points[0].Y;
-                foreach (var item in Points)
+                hash = Clicks[0].Point.X ^ Clicks[0].Point.Y;
+                foreach (var item in Clicks)
                 {
-                    hash = hash * (item.X ^ item.Y);
+                    hash = hash * (item.Point.X ^ item.Point.Y);
                 }
             }
             else
@@ -135,5 +147,10 @@ namespace NWN_ModuleRunner.Services
 
             return hash;
         }
+    }
+
+    public sealed class Click
+    {
+        public Point Point { get; set; }
     }
 }
