@@ -34,7 +34,7 @@ namespace NWN_ModuleRunner.Forms
             parameters = ParametersHelper.ReadOrDefaultParameters();
             NormalizeParameters();
             prevParameters = parameters.Clone() as Parameters;
-            SyncScreenParams();
+            //SyncScreenParams();
             SyncUIParams();
 
             areParametersChanged = () =>
@@ -68,16 +68,16 @@ namespace NWN_ModuleRunner.Forms
         private void SyncScreenParams()
         {
             // Screens.
-            for (int i = 1; i <= Screen.AllScreens.Length; ++i)
-                Cmb_Screens.Items.Add(i.ToString());
+            //for (int i = 1; i <= Screen.AllScreens.Length; ++i)
+            //    Cmb_Screens.Items.Add(i.ToString());
 
-            if (Cmb_Screens.Items.Count < 1)
-            {
-                Error("No screens are recognized.");
-                Environment.Exit(0);
-            }
+            //if (Cmb_Screens.Items.Count < 1)
+            //{
+            //    Error("No screens are recognized.");
+            //    Environment.Exit(0);
+            //}
 
-            Cmb_Screens.SelectedIndex = 0;
+            //Cmb_Screens.SelectedIndex = 0;
         }
 
         private void SyncUIParams()
@@ -388,7 +388,7 @@ namespace NWN_ModuleRunner.Forms
         {
             get
             {
-                return AreCoordinatesValid && IsScreenValid;
+                return AreCoordinatesValid;
             }
         }
 
@@ -413,13 +413,13 @@ namespace NWN_ModuleRunner.Forms
             }
         }
 
-        private bool IsScreenValid
-        {
-            get
-            {
-                return Cmb_Screens.SelectedIndex >= 0;
-            }
-        }
+        //private bool IsScreenValid
+        //{
+        //    get
+        //    {
+        //        return Cmb_Screens.SelectedIndex >= 0;
+        //    }
+        //}
         #endregion
 
         #region Mouse
