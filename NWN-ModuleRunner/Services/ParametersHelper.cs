@@ -105,6 +105,7 @@ namespace NWN_ModuleRunner.Services
                 result.Clicks.Add(new Click
                 {
                     Point = item.Point,
+                    DelayBefore = item.DelayBefore,
                 });
             }
 
@@ -116,11 +117,29 @@ namespace NWN_ModuleRunner.Services
             if (Object.ReferenceEquals(this, paramsObj))
                 return true;
 
-            return paramsObj != null
-                && ((Clicks == null && paramsObj.Clicks == null) || (Clicks != null && paramsObj.Clicks != null))
-                && Clicks.All(x => paramsObj.Clicks.Any(y => y.Point == x.Point))
-                && SaveParameters == paramsObj.SaveParameters
+            bool result = paramsObj != null;
+
+            if (result)
+                result = (Clicks == null && paramsObj.Clicks == null)
+                    || (Clicks != null && paramsObj.Clicks != null && Clicks.Count == paramsObj.Clicks.Count);
+
+            if (result)
+            {
+                for (int i = 0; i < Clicks.Count; i++)
+                {
+                    result = result
+                        && Clicks[i].Point == paramsObj.Clicks[i].Point
+                        && Clicks[i].DelayBefore == paramsObj.Clicks[i].DelayBefore;
+
+                    if (!result)
+                        return false;
+                }
+            }
+
+            result = result && SaveParameters == paramsObj.SaveParameters
                 && ShowFinalDialog == paramsObj.ShowFinalDialog;
+
+            return result;
         }
 
         public override bool Equals(object obj)
@@ -152,5 +171,6 @@ namespace NWN_ModuleRunner.Services
     public sealed class Click
     {
         public Point Point { get; set; }
+        public int DelayBefore { get; set; }
     }
 }

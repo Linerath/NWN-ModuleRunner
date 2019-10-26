@@ -36,10 +36,8 @@
             this.Lbl_Hint0 = new System.Windows.Forms.Label();
             this.Lbl_Hint1 = new System.Windows.Forms.Label();
             this.Tabs_Clicks = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
             this.Btn_Add = new System.Windows.Forms.Button();
             this.Btn_Remove = new System.Windows.Forms.Button();
-            this.Tabs_Clicks.SuspendLayout();
             this.SuspendLayout();
             // 
             // Btn_Start
@@ -116,22 +114,11 @@
             // 
             // Tabs_Clicks
             // 
-            this.Tabs_Clicks.Controls.Add(this.tabPage1);
             this.Tabs_Clicks.Location = new System.Drawing.Point(12, 50);
             this.Tabs_Clicks.Name = "Tabs_Clicks";
             this.Tabs_Clicks.SelectedIndex = 0;
             this.Tabs_Clicks.Size = new System.Drawing.Size(343, 143);
             this.Tabs_Clicks.TabIndex = 12;
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(335, 117);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // Btn_Add
             // 
@@ -175,7 +162,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NWN Module runner";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-            this.Tabs_Clicks.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -191,7 +177,6 @@
         private System.Windows.Forms.Label Lbl_Hint0;
         private System.Windows.Forms.Label Lbl_Hint1;
         private System.Windows.Forms.TabControl Tabs_Clicks;
-        private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Button Btn_Add;
         private System.Windows.Forms.Button Btn_Remove;
     }

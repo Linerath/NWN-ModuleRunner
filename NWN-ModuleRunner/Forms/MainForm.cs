@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace NWN_ModuleRunner.Forms
@@ -51,6 +52,8 @@ namespace NWN_ModuleRunner.Forms
             {
                 foreach (var click in parameters.Clicks)
                 {
+                    if (click.DelayBefore > 0)
+                        Thread.Sleep(click.DelayBefore);
                     PerformClick(click.Point.X, click.Point.Y);
                 }
             }
@@ -104,7 +107,7 @@ namespace NWN_ModuleRunner.Forms
                         Maximum = Screen.PrimaryScreen.Bounds.Width,
                         Value = click.Point.X,
                         Font = new Font("Segoe UI", 10),
-                        Size = new Size(84, 25),
+                        Size = new Size(85, 25),
                         Location = new Point(52, 32),
                         Name = "NUD_X",
                     };
@@ -123,15 +126,35 @@ namespace NWN_ModuleRunner.Forms
                         Maximum = Screen.PrimaryScreen.Bounds.Height,
                         Value = click.Point.Y,
                         Font = new Font("Segoe UI", 10),
-                        Size = new Size(84, 25),
+                        Size = new Size(85, 25),
                         Location = new Point(52, 63),
                         Name = "NUD_Y",
+                    };
+
+                    Label delay = new Label()
+                    {
+                        Text = "Delay before (ms)",
+                        Font = new Font("Segoe UI", 9),
+                        Size = new Size(75, 17),
+                        Location = new Point(150, 52),
+                    };
+                    NumericUpDownMeta nud_delay = new NumericUpDownMeta(click)
+                    {
+                        Minimum = 0,
+                        Maximum = 10000, // 10 sec - max delay
+                        Value = click.DelayBefore,
+                        Font = new Font("Segoe UI", 10),
+                        Size = new Size(85, 25),
+                        Location = new Point(225, 48),
+                        Name = "NUD_DELAY_BEFORE",
                     };
 
                     Tabs_Clicks.TabPages[i].Controls.Add(x);
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_x);
                     Tabs_Clicks.TabPages[i].Controls.Add(y);
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_y);
+                    Tabs_Clicks.TabPages[i].Controls.Add(delay);
+                    Tabs_Clicks.TabPages[i].Controls.Add(nud_delay);
                 }
             }
             else
@@ -139,11 +162,13 @@ namespace NWN_ModuleRunner.Forms
                 foreach (TabPage tabPage in Tabs_Clicks.TabPages)
                 {
                     (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
+                    NumericUpDownMeta nudDelay = GetTabDelayControl(tabPage);
 
                     Click click = NUDs.Item1.Click;
 
                     NUDs.Item1.Value = click.Point.X;
                     NUDs.Item2.Value = click.Point.Y;
+                    nudDelay.Value = click.DelayBefore;
                 }
             }
 
@@ -244,14 +269,15 @@ namespace NWN_ModuleRunner.Forms
         {
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
-                if (tab.Controls["NUD_X"] is NumericUpDownMeta nudX)
-                {
-                    nudX.ValueChanged += Coordinates_ValueChanged;
-                }
-                if (tab.Controls["NUD_Y"] is NumericUpDownMeta nudY)
-                {
-                    nudY.ValueChanged += Coordinates_ValueChanged;
-                }
+                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
+                NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
+
+                if (NUDs.Item1 != null)
+                    NUDs.Item1.ValueChanged += Coordinates_ValueChanged;
+                if (NUDs.Item2 != null)
+                    NUDs.Item2.ValueChanged += Coordinates_ValueChanged;
+                if (nudDelay != null)
+                    nudDelay.ValueChanged += DelayBefore_ValueChanged;
             }
         }
 
@@ -259,14 +285,17 @@ namespace NWN_ModuleRunner.Forms
         {
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
-                if (tab.Controls["NUD_X"] is NumericUpDownMeta nudX)
-                {
-                    nudX.ValueChanged -= Coordinates_ValueChanged;
-                }
-                if (tab.Controls["NUD_Y"] is NumericUpDownMeta nudY)
-                {
-                    nudY.ValueChanged -= Coordinates_ValueChanged;
-                }
+                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
+
+
+                NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
+
+                if (NUDs.Item1 != null)
+                    NUDs.Item1.ValueChanged -= Coordinates_ValueChanged;
+                if (NUDs.Item2 != null)
+                    NUDs.Item2.ValueChanged -= Coordinates_ValueChanged;
+                if (nudDelay != null)
+                    nudDelay.ValueChanged -= DelayBefore_ValueChanged;
             }
         }
 
@@ -275,12 +304,24 @@ namespace NWN_ModuleRunner.Forms
             return GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
         }
 
+        private NumericUpDownMeta GetCurrentDelayControl()
+        {
+            return GetTabDelayControl(Tabs_Clicks.SelectedTab);
+        }
+
         private (NumericUpDownMeta, NumericUpDownMeta) GetTabCoordinatesControls(TabPage tabPage)
         {
             NumericUpDownMeta x = tabPage.Controls["NUD_X"] as NumericUpDownMeta;
             NumericUpDownMeta y = tabPage.Controls["NUD_Y"] as NumericUpDownMeta;
 
             return (x, y);
+        }
+
+        private NumericUpDownMeta GetTabDelayControl(TabPage tabPage)
+        {
+            NumericUpDownMeta result = tabPage.Controls["NUD_DELAY_BEFORE"] as NumericUpDownMeta;
+
+            return result;
         }
 
         private void Error(String text)
@@ -359,6 +400,14 @@ namespace NWN_ModuleRunner.Forms
             {
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
                 ChangePoint(nud.Click, (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
+            }
+        }
+
+        private void DelayBefore_ValueChanged(object sender, EventArgs e)
+        {
+            if (sender is NumericUpDownMeta nud)
+            {
+                nud.Click.DelayBefore = (int)nud.Value;
             }
         }
 
