@@ -31,7 +31,7 @@ namespace NWN_ModuleRunner.Forms
             keyboardLLDelegate = new PInvokeHelper.HookProc(KeyboardProcLL);
 
             parameters = ParametersHelper.ReadOrDefaultParameters();
-            FillEmpyClicks();
+            NormalizeParameters();
             prevParameters = parameters.Clone() as Parameters;
             SyncScreenParams();
             SyncUIParams();
@@ -54,7 +54,10 @@ namespace NWN_ModuleRunner.Forms
                 {
                     if (click.DelayBefore > 0)
                         Thread.Sleep(click.DelayBefore);
-                    PerformClick(click.Point.X, click.Point.Y);
+                    for (int i = 0; i < click.Count; i++)
+                    {
+                        PerformClick(click.Point.X, click.Point.Y);
+                    }
                 }
             }
             else
@@ -131,12 +134,32 @@ namespace NWN_ModuleRunner.Forms
                         Name = "NUD_Y",
                     };
 
+                    // Clicks count
+                    Label count = new Label()
+                    {
+                        Text = "Clicks count",
+                        Font = new Font("Segoe UI", 9),
+                        Size = new Size(75, 17),
+                        Location = new Point(150, 34),
+                    };
+                    NumericUpDownMeta nud_count = new NumericUpDownMeta(click)
+                    {
+                        Minimum = 1,
+                        Maximum = 10,
+                        Value = click.Count,
+                        Font = new Font("Segoe UI", 10),
+                        Size = new Size(85, 25),
+                        Location = new Point(225, 32),
+                        Name = "NUD_CLICKS_COUNT",
+                    };
+
+                    // Delay before
                     Label delay = new Label()
                     {
                         Text = "Delay before (ms)",
                         Font = new Font("Segoe UI", 9),
                         Size = new Size(75, 17),
-                        Location = new Point(150, 52),
+                        Location = new Point(150, 65),
                     };
                     NumericUpDownMeta nud_delay = new NumericUpDownMeta(click)
                     {
@@ -145,7 +168,7 @@ namespace NWN_ModuleRunner.Forms
                         Value = click.DelayBefore,
                         Font = new Font("Segoe UI", 10),
                         Size = new Size(85, 25),
-                        Location = new Point(225, 48),
+                        Location = new Point(225, 63),
                         Name = "NUD_DELAY_BEFORE",
                     };
 
@@ -153,6 +176,8 @@ namespace NWN_ModuleRunner.Forms
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_x);
                     Tabs_Clicks.TabPages[i].Controls.Add(y);
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_y);
+                    Tabs_Clicks.TabPages[i].Controls.Add(count);
+                    Tabs_Clicks.TabPages[i].Controls.Add(nud_count);
                     Tabs_Clicks.TabPages[i].Controls.Add(delay);
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_delay);
                 }
@@ -162,12 +187,14 @@ namespace NWN_ModuleRunner.Forms
                 foreach (TabPage tabPage in Tabs_Clicks.TabPages)
                 {
                     (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
+                    NumericUpDownMeta nudCount = GetTabClicksCountControl(tabPage);
                     NumericUpDownMeta nudDelay = GetTabDelayControl(tabPage);
 
                     Click click = NUDs.Item1.Click;
 
                     NUDs.Item1.Value = click.Point.X;
                     NUDs.Item2.Value = click.Point.Y;
+                    nudCount.Value = click.Count;
                     nudDelay.Value = click.DelayBefore;
                 }
             }
@@ -177,7 +204,7 @@ namespace NWN_ModuleRunner.Forms
             BindingOn();
         }
 
-        private void FillEmpyClicks()
+        private void NormalizeParameters()
         {
             if (parameters == null)
                 return;
@@ -186,6 +213,12 @@ namespace NWN_ModuleRunner.Forms
                 parameters.Clicks = new List<Click>(10);
             if (parameters.Clicks.Count <= 0)
                 parameters.Clicks.Add(new Click());
+
+            foreach (var click in parameters.Clicks)
+            {
+                if (click.Count < 1)
+                    click.Count = 1;
+            }
         }
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
@@ -270,12 +303,15 @@ namespace NWN_ModuleRunner.Forms
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
+                NumericUpDownMeta nudCount = GetTabClicksCountControl(tab);
                 NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
 
                 if (NUDs.Item1 != null)
                     NUDs.Item1.ValueChanged += Coordinates_ValueChanged;
                 if (NUDs.Item2 != null)
                     NUDs.Item2.ValueChanged += Coordinates_ValueChanged;
+                if (nudCount != null)
+                    nudCount.ValueChanged += ClickCount_ValueChanged;
                 if (nudDelay != null)
                     nudDelay.ValueChanged += DelayBefore_ValueChanged;
             }
@@ -286,14 +322,15 @@ namespace NWN_ModuleRunner.Forms
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
-
-
+                NumericUpDownMeta nudCount = GetTabClicksCountControl(tab);
                 NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
 
                 if (NUDs.Item1 != null)
                     NUDs.Item1.ValueChanged -= Coordinates_ValueChanged;
                 if (NUDs.Item2 != null)
                     NUDs.Item2.ValueChanged -= Coordinates_ValueChanged;
+                if (nudCount != null)
+                    nudCount.ValueChanged -= ClickCount_ValueChanged;
                 if (nudDelay != null)
                     nudDelay.ValueChanged -= DelayBefore_ValueChanged;
             }
@@ -315,6 +352,13 @@ namespace NWN_ModuleRunner.Forms
             NumericUpDownMeta y = tabPage.Controls["NUD_Y"] as NumericUpDownMeta;
 
             return (x, y);
+        }
+
+        private NumericUpDownMeta GetTabClicksCountControl(TabPage tabPage)
+        {
+            NumericUpDownMeta result = tabPage.Controls["NUD_CLICKS_COUNT"] as NumericUpDownMeta;
+
+            return result;
         }
 
         private NumericUpDownMeta GetTabDelayControl(TabPage tabPage)
@@ -400,6 +444,14 @@ namespace NWN_ModuleRunner.Forms
             {
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
                 ChangePoint(nud.Click, (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
+            }
+        }
+
+        private void ClickCount_ValueChanged(object sender, EventArgs e)
+        {
+            if (sender is NumericUpDownMeta nud)
+            {
+                nud.Click.Count = (int)nud.Value;
             }
         }
 

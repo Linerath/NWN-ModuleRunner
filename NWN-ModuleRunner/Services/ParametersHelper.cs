@@ -105,6 +105,7 @@ namespace NWN_ModuleRunner.Services
                 result.Clicks.Add(new Click
                 {
                     Point = item.Point,
+                    Count = item.Count,
                     DelayBefore = item.DelayBefore,
                 });
             }
@@ -129,6 +130,7 @@ namespace NWN_ModuleRunner.Services
                 {
                     result = result
                         && Clicks[i].Point == paramsObj.Clicks[i].Point
+                        && Clicks[i].Count == paramsObj.Clicks[i].Count
                         && Clicks[i].DelayBefore == paramsObj.Clicks[i].DelayBefore;
 
                     if (!result)
@@ -171,6 +173,7 @@ namespace NWN_ModuleRunner.Services
     public sealed class Click
     {
         public Point Point { get; set; }
+        public int Count { get; set; } = 1;
         public int DelayBefore { get; set; }
     }
 }
