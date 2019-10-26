@@ -485,6 +485,26 @@ namespace NWN_ModuleRunner.Forms
             }
         }
 
+        private void Btn_BGMode_Click(object sender, EventArgs e)
+        {
+            bgMode = !bgMode;
+
+            Btn_BGMode.Text = $"BG mode {(bgMode ? "off" : "on")}";
+            Lbl_Hint0.Visible = bgMode;
+        }
+
+        private void Btn_Save_Click(object sender, EventArgs e)
+        {
+            if (ParametersHelper.TryWriteParameters(parameters))
+            {
+                prevParameters = parameters.Clone() as Parameters;
+            }
+            else
+            {
+                Error("Error occured while saving parameters. Open log file for details.");
+            }
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (parameters.ShowFinalDialog)
@@ -517,13 +537,5 @@ namespace NWN_ModuleRunner.Forms
             }
         }
         #endregion
-
-        private void Btn_BGMode_Click(object sender, EventArgs e)
-        {
-            bgMode = !bgMode;
-
-            Btn_BGMode.Text = $"BG mode {(bgMode ? "off" : "on")}";
-            Lbl_Hint0.Visible = bgMode;
-        }
     }
 }

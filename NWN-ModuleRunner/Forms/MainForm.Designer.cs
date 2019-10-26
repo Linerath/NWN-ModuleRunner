@@ -35,6 +35,7 @@
             this.Btn_Add = new System.Windows.Forms.Button();
             this.Btn_Remove = new System.Windows.Forms.Button();
             this.Btn_BGMode = new System.Windows.Forms.Button();
+            this.Btn_Save = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Btn_Start
@@ -109,11 +110,23 @@
             this.Btn_BGMode.UseVisualStyleBackColor = true;
             this.Btn_BGMode.Click += new System.EventHandler(this.Btn_BGMode_Click);
             // 
+            // Btn_Save
+            // 
+            this.Btn_Save.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_Save.Location = new System.Drawing.Point(308, 157);
+            this.Btn_Save.Name = "Btn_Save";
+            this.Btn_Save.Size = new System.Drawing.Size(47, 25);
+            this.Btn_Save.TabIndex = 16;
+            this.Btn_Save.Text = "Save";
+            this.Btn_Save.UseVisualStyleBackColor = true;
+            this.Btn_Save.Click += new System.EventHandler(this.Btn_Save_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(367, 262);
+            this.Controls.Add(this.Btn_Save);
             this.Controls.Add(this.Btn_BGMode);
             this.Controls.Add(this.Btn_Remove);
             this.Controls.Add(this.Btn_Add);
@@ -140,6 +153,7 @@
         private System.Windows.Forms.Button Btn_Add;
         private System.Windows.Forms.Button Btn_Remove;
         private System.Windows.Forms.Button Btn_BGMode;
+        private System.Windows.Forms.Button Btn_Save;
     }
 }
 
