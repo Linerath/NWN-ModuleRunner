@@ -41,7 +41,7 @@
             // Btn_Start
             // 
             this.Btn_Start.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_Start.Location = new System.Drawing.Point(78, 157);
+            this.Btn_Start.Location = new System.Drawing.Point(78, 177);
             this.Btn_Start.Name = "Btn_Start";
             this.Btn_Start.Size = new System.Drawing.Size(109, 56);
             this.Btn_Start.TabIndex = 0;
@@ -53,7 +53,7 @@
             // 
             this.Lbl_Hint1.AutoSize = true;
             this.Lbl_Hint1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Lbl_Hint1.Location = new System.Drawing.Point(12, 237);
+            this.Lbl_Hint1.Location = new System.Drawing.Point(12, 257);
             this.Lbl_Hint1.Name = "Lbl_Hint1";
             this.Lbl_Hint1.Size = new System.Drawing.Size(345, 17);
             this.Lbl_Hint1.TabIndex = 9;
@@ -63,7 +63,7 @@
             // 
             this.Lbl_Hint0.AutoSize = true;
             this.Lbl_Hint0.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Lbl_Hint0.Location = new System.Drawing.Point(129, 220);
+            this.Lbl_Hint0.Location = new System.Drawing.Point(129, 240);
             this.Lbl_Hint0.Name = "Lbl_Hint0";
             this.Lbl_Hint0.Size = new System.Drawing.Size(119, 17);
             this.Lbl_Hint0.TabIndex = 10;
@@ -75,13 +75,13 @@
             this.Tabs_Clicks.Location = new System.Drawing.Point(12, 12);
             this.Tabs_Clicks.Name = "Tabs_Clicks";
             this.Tabs_Clicks.SelectedIndex = 0;
-            this.Tabs_Clicks.Size = new System.Drawing.Size(343, 143);
+            this.Tabs_Clicks.Size = new System.Drawing.Size(343, 159);
             this.Tabs_Clicks.TabIndex = 12;
             // 
             // Btn_Add
             // 
             this.Btn_Add.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_Add.Location = new System.Drawing.Point(16, 157);
+            this.Btn_Add.Location = new System.Drawing.Point(16, 177);
             this.Btn_Add.Name = "Btn_Add";
             this.Btn_Add.Size = new System.Drawing.Size(25, 25);
             this.Btn_Add.TabIndex = 13;
@@ -92,7 +92,7 @@
             // Btn_Remove
             // 
             this.Btn_Remove.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_Remove.Location = new System.Drawing.Point(47, 157);
+            this.Btn_Remove.Location = new System.Drawing.Point(47, 177);
             this.Btn_Remove.Name = "Btn_Remove";
             this.Btn_Remove.Size = new System.Drawing.Size(25, 25);
             this.Btn_Remove.TabIndex = 14;
@@ -103,7 +103,7 @@
             // Btn_BGMode
             // 
             this.Btn_BGMode.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_BGMode.Location = new System.Drawing.Point(193, 157);
+            this.Btn_BGMode.Location = new System.Drawing.Point(193, 177);
             this.Btn_BGMode.Name = "Btn_BGMode";
             this.Btn_BGMode.Size = new System.Drawing.Size(109, 56);
             this.Btn_BGMode.TabIndex = 15;
@@ -113,7 +113,7 @@
             // Btn_Save
             // 
             this.Btn_Save.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_Save.Location = new System.Drawing.Point(308, 157);
+            this.Btn_Save.Location = new System.Drawing.Point(308, 177);
             this.Btn_Save.Name = "Btn_Save";
             this.Btn_Save.Size = new System.Drawing.Size(47, 25);
             this.Btn_Save.TabIndex = 16;
@@ -125,7 +125,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(367, 262);
+            this.ClientSize = new System.Drawing.Size(367, 283);
             this.Controls.Add(this.Btn_Save);
             this.Controls.Add(this.Btn_BGMode);
             this.Controls.Add(this.Btn_Remove);

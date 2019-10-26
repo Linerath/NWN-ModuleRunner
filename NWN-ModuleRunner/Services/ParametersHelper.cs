@@ -170,10 +170,20 @@ namespace NWN_ModuleRunner.Services
         }
     }
 
-    public sealed class Click
+    public sealed class Click : ICloneable
     {
         public Point Point { get; set; }
         public int Count { get; set; } = 1;
         public int DelayBefore { get; set; }
+
+        public object Clone()
+        {
+            return new Click
+            {
+                Point = Point,
+                Count = Count,
+                DelayBefore = DelayBefore,
+            };
+        }
     }
 }

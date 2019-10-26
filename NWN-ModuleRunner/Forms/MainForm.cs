@@ -41,8 +41,7 @@ namespace NWN_ModuleRunner.Forms
             {
                 return !parameters.Equals(prevParameters);
             };
-
-            var a = AppDomain.GetCurrentThreadId();
+            
             hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, keyboardDelegate, IntPtr.Zero, AppDomain.GetCurrentThreadId());
             hookIds[1] = PInvokeHelper.SetKeyboardLLHook(keyboardLLDelegate);
         }
@@ -174,6 +173,16 @@ namespace NWN_ModuleRunner.Forms
                         Name = "NUD_DELAY_BEFORE",
                     };
 
+                    // Clone button
+                    ButtonMeta clone = new ButtonMeta(click)
+                    {
+                        Text = "clone",
+                        Font = new Font("Segoe UI", 8),
+                        Size = new Size(50, 23),
+                        Location = new Point(282, 107),
+                    };
+                    clone.Click += Btn_Clone_Click;
+
                     Tabs_Clicks.TabPages[i].Controls.Add(x);
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_x);
                     Tabs_Clicks.TabPages[i].Controls.Add(y);
@@ -182,6 +191,7 @@ namespace NWN_ModuleRunner.Forms
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_count);
                     Tabs_Clicks.TabPages[i].Controls.Add(delay);
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_delay);
+                    Tabs_Clicks.TabPages[i].Controls.Add(clone);
                 }
             }
             else
@@ -358,6 +368,13 @@ namespace NWN_ModuleRunner.Forms
             }
         }
 
+        private Click GetCurrentClick()
+        {
+            NumericUpDownMeta nudDelay = GetCurrentDelayControl();
+
+            return nudDelay.Click;
+        }
+
         private (NumericUpDownMeta, NumericUpDownMeta) GetCurrentCoordinatesControls()
         {
             return GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
@@ -483,6 +500,16 @@ namespace NWN_ModuleRunner.Forms
             {
                 nud.Click.DelayBefore = (int)nud.Value;
             }
+        }
+
+        private void Btn_Clone_Click(object sender, EventArgs e)
+        {
+            Click click = GetCurrentClick();
+            Click copy = click.Clone() as Click;
+
+            parameters.Clicks.Add(copy);
+            SyncUIParams();
+            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
         }
 
         private void Btn_Add_Click(object sender, EventArgs e)
