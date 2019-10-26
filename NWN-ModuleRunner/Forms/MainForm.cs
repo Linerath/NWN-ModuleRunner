@@ -41,7 +41,7 @@ namespace NWN_ModuleRunner.Forms
             {
                 return !parameters.Equals(prevParameters);
             };
-            
+
             hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, keyboardDelegate, IntPtr.Zero, AppDomain.GetCurrentThreadId());
             hookIds[1] = PInvokeHelper.SetKeyboardLLHook(keyboardLLDelegate);
         }
@@ -403,6 +403,27 @@ namespace NWN_ModuleRunner.Forms
             }
         }
 
+        private void SelectNextTab(bool forward = true)
+        {
+            if (Tabs_Clicks.TabCount == 1)
+                return;
+
+            if (forward)
+            {
+                if (Tabs_Clicks.SelectedIndex == Tabs_Clicks.TabCount - 1)
+                    Tabs_Clicks.SelectedIndex = 0;
+                else
+                    ++Tabs_Clicks.SelectedIndex;
+            }
+            else
+            {
+                if (Tabs_Clicks.SelectedIndex == 0)
+                    Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
+                else
+                    --Tabs_Clicks.SelectedIndex;
+            }
+        }
+
         private Click GetCurrentClick()
         {
             NumericUpDownMeta nudDelay = GetCurrentDelayControl();
@@ -652,5 +673,13 @@ namespace NWN_ModuleRunner.Forms
             }
         }
         #endregion
+
+        private void Tabs_Clicks_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 'q')
+                SelectNextTab(false);
+            else if (e.KeyChar == 'e')
+                SelectNextTab();
+        }
     }
 }

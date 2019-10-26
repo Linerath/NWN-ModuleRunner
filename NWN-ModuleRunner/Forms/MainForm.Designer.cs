@@ -60,6 +60,7 @@
             this.Tabs_Clicks.SelectedIndex = 0;
             this.Tabs_Clicks.Size = new System.Drawing.Size(361, 159);
             this.Tabs_Clicks.TabIndex = 12;
+            this.Tabs_Clicks.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Tabs_Clicks_KeyPress);
             // 
             // Btn_Add
             // 
