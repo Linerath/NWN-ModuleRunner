@@ -57,7 +57,7 @@
             this.Lbl_Hint1.Name = "Lbl_Hint1";
             this.Lbl_Hint1.Size = new System.Drawing.Size(345, 17);
             this.Lbl_Hint1.TabIndex = 9;
-            this.Lbl_Hint1.Text = "Press \"F1\" to set coordinates from current cursor position";
+            this.Lbl_Hint1.Text = "Press \"F9\" to set coordinates from current cursor position";
             // 
             // Lbl_Hint0
             // 
@@ -65,9 +65,9 @@
             this.Lbl_Hint0.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Lbl_Hint0.Location = new System.Drawing.Point(129, 220);
             this.Lbl_Hint0.Name = "Lbl_Hint0";
-            this.Lbl_Hint0.Size = new System.Drawing.Size(112, 17);
+            this.Lbl_Hint0.Size = new System.Drawing.Size(119, 17);
             this.Lbl_Hint0.TabIndex = 10;
-            this.Lbl_Hint0.Text = "Press \"F5\" to start";
+            this.Lbl_Hint0.Text = "Press \"F12\" to start";
             this.Lbl_Hint0.Visible = false;
             // 
             // Tabs_Clicks
@@ -102,7 +102,7 @@
             // 
             // Btn_BGMode
             // 
-            this.Btn_BGMode.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_BGMode.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Btn_BGMode.Location = new System.Drawing.Point(193, 157);
             this.Btn_BGMode.Name = "Btn_BGMode";
             this.Btn_BGMode.Size = new System.Drawing.Size(109, 56);

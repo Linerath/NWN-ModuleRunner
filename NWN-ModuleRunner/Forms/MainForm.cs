@@ -42,6 +42,7 @@ namespace NWN_ModuleRunner.Forms
                 return !parameters.Equals(prevParameters);
             };
 
+            var a = AppDomain.GetCurrentThreadId();
             hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, keyboardDelegate, IntPtr.Zero, AppDomain.GetCurrentThreadId());
             hookIds[1] = PInvokeHelper.SetKeyboardLLHook(keyboardLLDelegate);
         }
@@ -200,12 +201,17 @@ namespace NWN_ModuleRunner.Forms
                 }
             }
 
-            Btn_BGMode.Text = $"BG mode {(bgMode ? "off" : "on")}";
-            Lbl_Hint0.Visible = bgMode;
+            SyncBGMode();
 
             Btn_Remove.Enabled = parameters.Clicks.Count > 1;
 
             BindingOn();
+        }
+
+        private void SyncBGMode()
+        {
+            Btn_BGMode.Text = $"Turn BG mode {(bgMode ? "off" : "on")}";
+            Lbl_Hint0.Visible = bgMode;
         }
 
         private void NormalizeParameters()
@@ -214,7 +220,7 @@ namespace NWN_ModuleRunner.Forms
                 return;
 
             if (parameters.Clicks == null)
-                parameters.Clicks = new List<Click>(10);
+                parameters.Clicks = new List<Click>();
             if (parameters.Clicks.Count <= 0)
                 parameters.Clicks.Add(new Click());
 
@@ -227,27 +233,20 @@ namespace NWN_ModuleRunner.Forms
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
         {
-            //if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
-            if (code == 3)
+            if (!bgMode)
             {
-                #region K
-                Keys keyPressed = (Keys)wParam.ToInt32();
-
-                if (keyPressed == Keys.F1)
+                //if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
+                if (code == 3)
                 {
-                    (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
+                    #region K
+                    Keys keyPressed = (Keys)wParam.ToInt32();
 
-                    if (Cursor.Position.X > NUDs.Item1.Maximum || Cursor.Position.Y > NUDs.Item2.Maximum)
+                    if (keyPressed == Keys.F9)
                     {
-                        Error("Coordinates are out of boundaries");
+                        ChangeCurrentPoint();
                     }
-                    else
-                    {
-                        ChangePoint(Cursor.Position.X, Cursor.Position.Y);
-                        SyncUIParams();
-                    }
+                    #endregion
                 }
-                #endregion
             }
 
             return PInvokeHelper.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
@@ -259,13 +258,32 @@ namespace NWN_ModuleRunner.Forms
             {
                 Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
 
-                if (keyPressed == Keys.F5)
+                if (keyPressed == Keys.F9)
+                {
+                    ChangeCurrentPoint();
+                }
+                else if (keyPressed == Keys.F12)
                 {
                     Start();
                 }
             }
 
             return PInvokeHelper.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
+        }
+
+        private void ChangeCurrentPoint()
+        {
+            (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
+
+            if (Cursor.Position.X > NUDs.Item1.Maximum || Cursor.Position.Y > NUDs.Item2.Maximum)
+            {
+                Error("Coordinates are out of boundaries");
+            }
+            else
+            {
+                ChangePoint(Cursor.Position.X, Cursor.Position.Y);
+                SyncUIParams();
+            }
         }
 
         private void ChangePoint(int x, int y)
@@ -471,17 +489,27 @@ namespace NWN_ModuleRunner.Forms
         {
             parameters.Clicks.Add(new Click());
             SyncUIParams();
+            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
         }
 
         private void Btn_Remove_Click(object sender, EventArgs e)
         {
             if (parameters.Clicks.Count > 1)
             {
+                int index = Tabs_Clicks.SelectedIndex;
+
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
 
                 parameters.Clicks.Remove(NUDs.Item1.Click);
-
                 SyncUIParams();
+
+                if (index != 0)
+                {
+                    if (index <= Tabs_Clicks.TabCount - 1)
+                        Tabs_Clicks.SelectedIndex = index;
+                    else
+                        Tabs_Clicks.SelectedIndex = index - 1;
+                }
             }
         }
 
@@ -489,8 +517,7 @@ namespace NWN_ModuleRunner.Forms
         {
             bgMode = !bgMode;
 
-            Btn_BGMode.Text = $"BG mode {(bgMode ? "off" : "on")}";
-            Lbl_Hint0.Visible = bgMode;
+            SyncBGMode();
         }
 
         private void Btn_Save_Click(object sender, EventArgs e)
