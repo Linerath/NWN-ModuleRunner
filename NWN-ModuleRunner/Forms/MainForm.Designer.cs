@@ -33,17 +33,18 @@
             this.Lbl_Screen = new System.Windows.Forms.Label();
             this.Lbl_Cursor = new System.Windows.Forms.Label();
             this.Lbl_CursorXY = new System.Windows.Forms.Label();
-            this.Lbl_Hint0 = new System.Windows.Forms.Label();
             this.Lbl_Hint1 = new System.Windows.Forms.Label();
+            this.Lbl_Hint0 = new System.Windows.Forms.Label();
             this.Tabs_Clicks = new System.Windows.Forms.TabControl();
             this.Btn_Add = new System.Windows.Forms.Button();
             this.Btn_Remove = new System.Windows.Forms.Button();
+            this.Btn_BGMode = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // Btn_Start
             // 
             this.Btn_Start.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_Start.Location = new System.Drawing.Point(132, 199);
+            this.Btn_Start.Location = new System.Drawing.Point(78, 195);
             this.Btn_Start.Name = "Btn_Start";
             this.Btn_Start.Size = new System.Drawing.Size(109, 56);
             this.Btn_Start.TabIndex = 0;
@@ -92,25 +93,26 @@
             this.Lbl_CursorXY.Text = "XY";
             this.Lbl_CursorXY.Visible = false;
             // 
-            // Lbl_Hint0
-            // 
-            this.Lbl_Hint0.AutoSize = true;
-            this.Lbl_Hint0.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Lbl_Hint0.Location = new System.Drawing.Point(12, 275);
-            this.Lbl_Hint0.Name = "Lbl_Hint0";
-            this.Lbl_Hint0.Size = new System.Drawing.Size(345, 17);
-            this.Lbl_Hint0.TabIndex = 9;
-            this.Lbl_Hint0.Text = "Press \"F1\" to set coordinates from current cursor position";
-            // 
             // Lbl_Hint1
             // 
             this.Lbl_Hint1.AutoSize = true;
             this.Lbl_Hint1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Lbl_Hint1.Location = new System.Drawing.Point(129, 258);
+            this.Lbl_Hint1.Location = new System.Drawing.Point(12, 275);
             this.Lbl_Hint1.Name = "Lbl_Hint1";
-            this.Lbl_Hint1.Size = new System.Drawing.Size(112, 17);
-            this.Lbl_Hint1.TabIndex = 10;
-            this.Lbl_Hint1.Text = "Press \"F5\" to start";
+            this.Lbl_Hint1.Size = new System.Drawing.Size(345, 17);
+            this.Lbl_Hint1.TabIndex = 9;
+            this.Lbl_Hint1.Text = "Press \"F1\" to set coordinates from current cursor position";
+            // 
+            // Lbl_Hint0
+            // 
+            this.Lbl_Hint0.AutoSize = true;
+            this.Lbl_Hint0.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Lbl_Hint0.Location = new System.Drawing.Point(129, 258);
+            this.Lbl_Hint0.Name = "Lbl_Hint0";
+            this.Lbl_Hint0.Size = new System.Drawing.Size(112, 17);
+            this.Lbl_Hint0.TabIndex = 10;
+            this.Lbl_Hint0.Text = "Press \"F5\" to start";
+            this.Lbl_Hint0.Visible = false;
             // 
             // Tabs_Clicks
             // 
@@ -142,16 +144,27 @@
             this.Btn_Remove.UseVisualStyleBackColor = true;
             this.Btn_Remove.Click += new System.EventHandler(this.Btn_Remove_Click);
             // 
+            // Btn_BGMode
+            // 
+            this.Btn_BGMode.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_BGMode.Location = new System.Drawing.Point(193, 195);
+            this.Btn_BGMode.Name = "Btn_BGMode";
+            this.Btn_BGMode.Size = new System.Drawing.Size(109, 56);
+            this.Btn_BGMode.TabIndex = 15;
+            this.Btn_BGMode.UseVisualStyleBackColor = true;
+            this.Btn_BGMode.Click += new System.EventHandler(this.Btn_BGMode_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(367, 301);
+            this.Controls.Add(this.Btn_BGMode);
             this.Controls.Add(this.Btn_Remove);
             this.Controls.Add(this.Btn_Add);
             this.Controls.Add(this.Tabs_Clicks);
-            this.Controls.Add(this.Lbl_Hint1);
             this.Controls.Add(this.Lbl_Hint0);
+            this.Controls.Add(this.Lbl_Hint1);
             this.Controls.Add(this.Lbl_CursorXY);
             this.Controls.Add(this.Lbl_Cursor);
             this.Controls.Add(this.Lbl_Screen);
@@ -174,11 +187,12 @@
         private System.Windows.Forms.Label Lbl_Screen;
         private System.Windows.Forms.Label Lbl_Cursor;
         private System.Windows.Forms.Label Lbl_CursorXY;
-        private System.Windows.Forms.Label Lbl_Hint0;
         private System.Windows.Forms.Label Lbl_Hint1;
+        private System.Windows.Forms.Label Lbl_Hint0;
         private System.Windows.Forms.TabControl Tabs_Clicks;
         private System.Windows.Forms.Button Btn_Add;
         private System.Windows.Forms.Button Btn_Remove;
+        private System.Windows.Forms.Button Btn_BGMode;
     }
 }
 

@@ -20,6 +20,7 @@ namespace NWN_ModuleRunner.Forms
         private PInvokeHelper.HookProc keyboardLLDelegate = null;
         private Func<bool> areParametersChanged;
 
+        private bool bgMode = false;
         private bool exit = false;
 
 
@@ -199,6 +200,9 @@ namespace NWN_ModuleRunner.Forms
                 }
             }
 
+            Btn_BGMode.Text = $"BG mode {(bgMode ? "off" : "on")}";
+            Lbl_Hint0.Visible = bgMode;
+
             Btn_Remove.Enabled = parameters.Clicks.Count > 1;
 
             BindingOn();
@@ -251,7 +255,7 @@ namespace NWN_ModuleRunner.Forms
 
         private int KeyboardProcLL(int code, IntPtr wParam, IntPtr lParam)
         {
-            if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
+            if (bgMode && code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
             {
                 Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
 
@@ -513,5 +517,13 @@ namespace NWN_ModuleRunner.Forms
             }
         }
         #endregion
+
+        private void Btn_BGMode_Click(object sender, EventArgs e)
+        {
+            bgMode = !bgMode;
+
+            Btn_BGMode.Text = $"BG mode {(bgMode ? "off" : "on")}";
+            Lbl_Hint0.Visible = bgMode;
+        }
     }
 }
