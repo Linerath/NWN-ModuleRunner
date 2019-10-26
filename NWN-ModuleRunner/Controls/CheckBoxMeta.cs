@@ -4,11 +4,11 @@ using System.Windows.Forms;
 
 namespace NWN_ModuleRunner.Controls
 {
-    public class NumericUpDownMeta : NumericUpDown
+    public class CheckBoxMeta : CheckBox
     {
         public Click ClickObj { get; set; }
 
-        public NumericUpDownMeta(Click click)
+        public CheckBoxMeta(Click click)
         {
             if (click == null)
                 throw new ArgumentNullException(nameof(click));

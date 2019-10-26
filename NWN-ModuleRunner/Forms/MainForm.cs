@@ -53,6 +53,9 @@ namespace NWN_ModuleRunner.Forms
             {
                 foreach (var click in parameters.Clicks)
                 {
+                    if (!click.Enabled)
+                        continue;
+
                     if (click.DelayBefore > 0)
                         Thread.Sleep(click.DelayBefore);
                     for (int i = 0; i < click.Count; i++)
@@ -180,6 +183,17 @@ namespace NWN_ModuleRunner.Forms
                         Name = "NUD_DELAY_BEFORE",
                     };
 
+                    // Enabled
+                    CheckBoxMeta enabled = new CheckBoxMeta(click)
+                    {
+                        Text = "Enabled",
+                        Name = "CB_Enabled",
+                        Checked = click.Enabled,
+                        Font = new Font("Segoe UI", 9),
+                        Size = new Size(68, 17),
+                        Location = new Point(3, 113),
+                    };
+
                     // Clone button
                     ButtonMeta clone = new ButtonMeta(click)
                     {
@@ -198,6 +212,7 @@ namespace NWN_ModuleRunner.Forms
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_count);
                     Tabs_Clicks.TabPages[i].Controls.Add(delay);
                     Tabs_Clicks.TabPages[i].Controls.Add(nud_delay);
+                    Tabs_Clicks.TabPages[i].Controls.Add(enabled);
                     Tabs_Clicks.TabPages[i].Controls.Add(clone);
                 }
             }
@@ -208,13 +223,15 @@ namespace NWN_ModuleRunner.Forms
                     (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
                     NumericUpDownMeta nudCount = GetTabClicksCountControl(tabPage);
                     NumericUpDownMeta nudDelay = GetTabDelayControl(tabPage);
+                    CheckBoxMeta cb = GetCurrentEnabledControl(tabPage);
 
-                    Click click = NUDs.Item1.Click;
+                    Click click = NUDs.Item1.ClickObj;
 
                     NUDs.Item1.Value = click.Point.X;
                     NUDs.Item2.Value = click.Point.Y;
                     nudCount.Value = click.Count;
                     nudDelay.Value = click.DelayBefore;
+                    cb.Enabled = click.Enabled;
                 }
             }
 
@@ -323,7 +340,7 @@ namespace NWN_ModuleRunner.Forms
 
             (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
 
-            ChangePoint(NUDs.Item1.Click, x, y);
+            ChangePoint(NUDs.Item1.ClickObj, x, y);
         }
 
         private void ChangePoint(Click click, int x, int y)
@@ -349,6 +366,7 @@ namespace NWN_ModuleRunner.Forms
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
                 NumericUpDownMeta nudCount = GetTabClicksCountControl(tab);
                 NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
+                CheckBoxMeta cbEnabled = GetTabEnabledControl(tab);
 
                 if (NUDs.Item1 != null)
                     NUDs.Item1.ValueChanged += Coordinates_ValueChanged;
@@ -358,6 +376,8 @@ namespace NWN_ModuleRunner.Forms
                     nudCount.ValueChanged += ClickCount_ValueChanged;
                 if (nudDelay != null)
                     nudDelay.ValueChanged += DelayBefore_ValueChanged;
+                if (cbEnabled != null)
+                    cbEnabled.CheckedChanged += Enabled_CheckedChanged;
             }
         }
 
@@ -368,6 +388,7 @@ namespace NWN_ModuleRunner.Forms
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
                 NumericUpDownMeta nudCount = GetTabClicksCountControl(tab);
                 NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
+                CheckBoxMeta cbEnabled = GetTabEnabledControl(tab);
 
                 if (NUDs.Item1 != null)
                     NUDs.Item1.ValueChanged -= Coordinates_ValueChanged;
@@ -377,6 +398,8 @@ namespace NWN_ModuleRunner.Forms
                     nudCount.ValueChanged -= ClickCount_ValueChanged;
                 if (nudDelay != null)
                     nudDelay.ValueChanged -= DelayBefore_ValueChanged;
+                if (cbEnabled != null)
+                    cbEnabled.CheckedChanged -= Enabled_CheckedChanged;
             }
         }
 
@@ -384,9 +407,21 @@ namespace NWN_ModuleRunner.Forms
         {
             NumericUpDownMeta nudDelay = GetCurrentDelayControl();
 
-            return nudDelay.Click;
+            return nudDelay.ClickObj;
         }
 
+        private void Error(String text)
+        {
+            MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        // PROTOTYPE
+        private void UpdateCursorPosition()
+        {
+            //Lbl_CursorXY.Text = $"{Cursor.Position.X};{Cursor.Position.Y}";
+        }
+
+        #region Getting Controls
         private (NumericUpDownMeta, NumericUpDownMeta) GetCurrentCoordinatesControls()
         {
             return GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
@@ -395,6 +430,11 @@ namespace NWN_ModuleRunner.Forms
         private NumericUpDownMeta GetCurrentDelayControl()
         {
             return GetTabDelayControl(Tabs_Clicks.SelectedTab);
+        }
+
+        private CheckBoxMeta GetCurrentEnabledControl(TabPage tabPage)
+        {
+            return GetTabEnabledControl(Tabs_Clicks.SelectedTab);
         }
 
         private (NumericUpDownMeta, NumericUpDownMeta) GetTabCoordinatesControls(TabPage tabPage)
@@ -419,16 +459,13 @@ namespace NWN_ModuleRunner.Forms
             return result;
         }
 
-        private void Error(String text)
+        private CheckBoxMeta GetTabEnabledControl(TabPage tabPage)
         {
-            MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
+            CheckBoxMeta result = tabPage.Controls["CB_Enabled"] as CheckBoxMeta;
 
-        // PROTOTYPE
-        private void UpdateCursorPosition()
-        {
-            //Lbl_CursorXY.Text = $"{Cursor.Position.X};{Cursor.Position.Y}";
+            return result;
         }
+        #endregion
 
         #region Form validity
         private bool AreParametersValid
@@ -494,7 +531,7 @@ namespace NWN_ModuleRunner.Forms
             if (sender is NumericUpDownMeta nud && nud.Parent is TabPage tabPage)
             {
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
-                ChangePoint(nud.Click, (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
+                ChangePoint(nud.ClickObj, (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
             }
         }
 
@@ -502,7 +539,7 @@ namespace NWN_ModuleRunner.Forms
         {
             if (sender is NumericUpDownMeta nud)
             {
-                nud.Click.Count = (int)nud.Value;
+                nud.ClickObj.Count = (int)nud.Value;
             }
         }
 
@@ -510,7 +547,15 @@ namespace NWN_ModuleRunner.Forms
         {
             if (sender is NumericUpDownMeta nud)
             {
-                nud.Click.DelayBefore = (int)nud.Value;
+                nud.ClickObj.DelayBefore = (int)nud.Value;
+            }
+        }
+
+        private void Enabled_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sender is CheckBoxMeta cb)
+            {
+                cb.ClickObj.Enabled = cb.Checked;
             }
         }
 
@@ -535,7 +580,7 @@ namespace NWN_ModuleRunner.Forms
 
                 (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
 
-                parameters.Clicks.Remove(NUDs.Item1.Click);
+                parameters.Clicks.Remove(NUDs.Item1.ClickObj);
                 SyncUIParams();
 
                 if (index != 0)
@@ -567,6 +612,7 @@ namespace NWN_ModuleRunner.Forms
             if (ParametersHelper.TryWriteParameters(parameters))
             {
                 prevParameters = parameters.Clone() as Parameters;
+                MessageBox.Show("Saved", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {

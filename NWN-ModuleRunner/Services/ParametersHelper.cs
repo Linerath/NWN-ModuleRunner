@@ -107,6 +107,7 @@ namespace NWN_ModuleRunner.Services
                     Point = item.Point,
                     Count = item.Count,
                     DelayBefore = item.DelayBefore,
+                    Enabled = item.Enabled,
                 });
             }
 
@@ -131,7 +132,8 @@ namespace NWN_ModuleRunner.Services
                     result = result
                         && Clicks[i].Point == paramsObj.Clicks[i].Point
                         && Clicks[i].Count == paramsObj.Clicks[i].Count
-                        && Clicks[i].DelayBefore == paramsObj.Clicks[i].DelayBefore;
+                        && Clicks[i].DelayBefore == paramsObj.Clicks[i].DelayBefore
+                        && Clicks[i].Enabled == paramsObj.Clicks[i].Enabled;
 
                     if (!result)
                         return false;
@@ -174,7 +176,8 @@ namespace NWN_ModuleRunner.Services
     {
         public Point Point { get; set; }
         public int Count { get; set; } = 1;
-        public int DelayBefore { get; set; }
+        public int DelayBefore { get; set; } = 100;
+        public bool Enabled { get; set; }
 
         public object Clone()
         {
@@ -183,6 +186,7 @@ namespace NWN_ModuleRunner.Services
                 Point = Point,
                 Count = Count,
                 DelayBefore = DelayBefore,
+                Enabled = Enabled,
             };
         }
     }
