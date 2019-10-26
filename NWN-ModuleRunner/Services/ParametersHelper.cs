@@ -177,7 +177,7 @@ namespace NWN_ModuleRunner.Services
         public Point Point { get; set; }
         public int Count { get; set; } = 1;
         public int DelayBefore { get; set; } = 100;
-        public bool Enabled { get; set; }
+        public bool Enabled { get; set; } = true;
 
         public object Clone()
         {

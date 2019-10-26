@@ -231,7 +231,7 @@ namespace NWN_ModuleRunner.Forms
                     NUDs.Item2.Value = click.Point.Y;
                     nudCount.Value = click.Count;
                     nudDelay.Value = click.DelayBefore;
-                    cb.Enabled = click.Enabled;
+                    cb.Checked = click.Enabled;
                 }
             }
 
