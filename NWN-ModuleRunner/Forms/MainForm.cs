@@ -120,12 +120,14 @@ namespace NWN_ModuleRunner.Forms
                         {
                             Minimum = 0,
                             Maximum = Screen.PrimaryScreen.Bounds.Width,
-                            Value = click.Point.X,
                             Font = new Font("Segoe UI", 10),
                             Size = new Size(85, 25),
                             Location = new Point(52, 32),
                             Name = NUD_X,
                         };
+                        nud_x.Value = click.Point.X >= nud_x.Minimum && click.Point.X <= nud_x.Maximum
+                            ? click.Point.X
+                            : 0;
 
                         // Y
                         Label y = new Label()
@@ -139,12 +141,14 @@ namespace NWN_ModuleRunner.Forms
                         {
                             Minimum = 0,
                             Maximum = Screen.PrimaryScreen.Bounds.Height,
-                            Value = click.Point.Y,
                             Font = new Font("Segoe UI", 10),
                             Size = new Size(85, 25),
                             Location = new Point(52, 63),
                             Name = NUD_Y,
                         };
+                        nud_y.Value = click.Point.Y >= nud_y.Minimum && click.Point.Y <= nud_y.Maximum
+                            ? click.Point.Y
+                            : 0;
 
                         // Clicks count
                         Label count = new Label()
