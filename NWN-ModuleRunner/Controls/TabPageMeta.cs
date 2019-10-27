@@ -4,11 +4,12 @@ using System.Windows.Forms;
 
 namespace NWN_ModuleRunner.Controls
 {
-    public class CheckBoxMeta : CheckBox
+    public class TabPageMeta : TabPage
     {
         public Click ClickObj { get; set; }
 
-        public CheckBoxMeta(Click click)
+        public TabPageMeta(Click click, String text)
+            : base(text)
         {
             if (click == null)
                 throw new ArgumentNullException(nameof(click));

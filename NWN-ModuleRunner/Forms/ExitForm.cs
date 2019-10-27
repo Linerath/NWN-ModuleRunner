@@ -1,44 +1,43 @@
-﻿using NWN_ModuleRunner.Services;
-using System;
+﻿using System;
 using System.Windows.Forms;
+using NWN_ModuleRunner.Services;
 
 namespace NWN_ModuleRunner.Forms
 {
     public partial class ExitForm : Form
     {
-        private Parameters parameters;
+        private ParametersService service;
 
-        public ExitForm(Parameters parameters)
+        private const String SAVE_ERROR = "Error has occured while saving parameters. Open log file for details.";
+
+
+        public ExitForm(ParametersService service)
         {
-            this.parameters = parameters;
+            this.service = service;
 
             InitializeComponent();
         }
 
+
         private void Btn_Y_Click(object sender, EventArgs e)
         {
-            if (parameters == null)
-            {
-                MessageBox.Show("Invalid parameters. Saving is aborted.");
-            }
-            else
-            {
-                parameters.ShowFinalDialog = !CB_Stop.Checked;
-                if (!ParametersHelper.TryWriteParameters(parameters))
-                    MessageBox.Show("Error occured while saving parameters. Open log file for details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            service.ShowFinalDialog = !CB_Stop.Checked;
+            if (!service.TryWriteParameters())
+                MessageBox.Show(SAVE_ERROR, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
             Close();
         }
 
         private void Btn_N_Click(object sender, EventArgs e)
         {
-            Parameters parameters = ParametersHelper.ReadOrDefaultParameters();
+            service.ShowFinalDialog = !CB_Stop.Checked;
 
-            if (parameters.ShowFinalDialog != !CB_Stop.Checked)
+            ParametersService newService = new ParametersService(service.path);
+
+            if (newService.ShowFinalDialog != !CB_Stop.Checked)
             {
-                parameters.ShowFinalDialog = !CB_Stop.Checked;
-                ParametersHelper.TryWriteParameters(parameters);
+                newService.ShowFinalDialog = !newService.ShowFinalDialog;
+                newService.TryWriteParameters();
             }
 
             Close();

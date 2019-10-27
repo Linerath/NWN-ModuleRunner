@@ -3,6 +3,7 @@ using NWN_ModuleRunner.Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -12,16 +13,25 @@ namespace NWN_ModuleRunner.Forms
 {
     public partial class MainForm : Form
     {
-        private Parameters prevParameters = null;
-        private Parameters parameters = null;
-        private IntPtr[] hookIds = new IntPtr[] { IntPtr.Zero, IntPtr.Zero };
+        private ParametersService service;
+        private Template selectedTemplate;
+        //private Timer
 
+        private IntPtr[] hookIds = new IntPtr[] { IntPtr.Zero, IntPtr.Zero };
         private PInvokeHelper.HookProc keyboardDelegate = null;
         private PInvokeHelper.HookProc keyboardLLDelegate = null;
-        private Func<bool> areParametersChanged;
 
         private bool bgMode = false;
         private bool exit = false;
+
+        private const String NUD_X = "NUD_X";
+        private const String NUD_Y = "NUD_Y";
+        private const String NUD_CLICKS_COUNT = "NUD_CLICKS_COUNT";
+        private const String NUD_DELAY_BEFORE = "NUD_DELAY_BEFORE";
+        private const String CB_Enabled = "CB_Enabled";
+
+        private const String ERROR = "Critical error has occured. Open log file for details.";
+        private const String SAVE_ERROR = "Error has occured while saving parameters. Open log file for details.";
 
 
         public MainForm()
@@ -31,16 +41,11 @@ namespace NWN_ModuleRunner.Forms
             keyboardDelegate = new PInvokeHelper.HookProc(KeyboardProc);
             keyboardLLDelegate = new PInvokeHelper.HookProc(KeyboardProcLL);
 
-            parameters = ParametersHelper.ReadOrDefaultParameters();
-            NormalizeParameters();
-            prevParameters = parameters.Clone() as Parameters;
+            service = new ParametersService();
+            selectedTemplate = service.Templates.FirstOrDefault();
+
             //SyncScreenParams();
             SyncUIParams();
-
-            areParametersChanged = () =>
-            {
-                return !parameters.Equals(prevParameters);
-            };
 
             hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, keyboardDelegate, IntPtr.Zero, AppDomain.GetCurrentThreadId());
             hookIds[1] = PInvokeHelper.SetKeyboardLLHook(keyboardLLDelegate);
@@ -51,7 +56,7 @@ namespace NWN_ModuleRunner.Forms
         {
             if (AreParametersValid)
             {
-                foreach (var click in parameters.Clicks)
+                foreach (var click in selectedTemplate.Clicks)
                 {
                     if (!click.Enabled)
                         continue;
@@ -66,13 +71,6 @@ namespace NWN_ModuleRunner.Forms
             }
             else
                 Error("One or more parameter is invalid.");
-        }
-
-        private void AddNew(Click click = null)
-        {
-            parameters.Clicks.Add(click ?? new Click());
-            SyncUIParams();
-            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
         }
 
         private void SyncScreenParams()
@@ -92,154 +90,184 @@ namespace NWN_ModuleRunner.Forms
 
         private void SyncUIParams()
         {
-            if (parameters == null)
-                return;
-
             BindingOff();
 
-            if (Tabs_Clicks.TabCount != parameters.Clicks.Count)
+            CB_Template.Items.Clear();
+            foreach (var item in service.Templates)
+                CB_Template.Items.Add(item.Name ?? "?");
+
+            if (selectedTemplate != null)
             {
-                Tabs_Clicks.TabPages.Clear();
-
-                for (int i = 0; i < parameters.Clicks.Count; ++i)
+                if (selectedTemplate.Clicks.Count != Tabs_Clicks.TabCount)
                 {
-                    Click click = parameters.Clicks[i];
+                    Tabs_Clicks.TabPages.Clear();
+                    for (int i = 0; i < selectedTemplate.Clicks.Count; ++i)
+                    {
+                        Click click = selectedTemplate.Clicks[i];
 
-                    Tabs_Clicks.TabPages.Add($"#{i + 1}");
+                        TabPageMeta page = new TabPageMeta(click, $"#{i + 1}");
+                        Tabs_Clicks.TabPages.Add(page);
 
-                    // X
-                    Label x = new Label()
-                    {
-                        Text = "X",
-                        Font = new Font("Segoe UI", 10),
-                        Size = new Size(19, 17),
-                        Location = new Point(27, 34),
-                    };
-                    NumericUpDownMeta nud_x = new NumericUpDownMeta(click)
-                    {
-                        Minimum = 0,
-                        Maximum = Screen.PrimaryScreen.Bounds.Width,
-                        Value = click.Point.X,
-                        Font = new Font("Segoe UI", 10),
-                        Size = new Size(85, 25),
-                        Location = new Point(52, 32),
-                        Name = "NUD_X",
-                    };
+                        // X
+                        Label x = new Label()
+                        {
+                            Text = "X",
+                            Font = new Font("Segoe UI", 10),
+                            Size = new Size(19, 17),
+                            Location = new Point(27, 34),
+                        };
+                        NumericUpDown nud_x = new NumericUpDown()
+                        {
+                            Minimum = 0,
+                            Maximum = Screen.PrimaryScreen.Bounds.Width,
+                            Value = click.Point.X,
+                            Font = new Font("Segoe UI", 10),
+                            Size = new Size(85, 25),
+                            Location = new Point(52, 32),
+                            Name = NUD_X,
+                        };
 
-                    // Y
-                    Label y = new Label()
-                    {
-                        Text = "Y",
-                        Font = new Font("Segoe UI", 10),
-                        Size = new Size(19, 17),
-                        Location = new Point(27, 65),
-                    };
-                    NumericUpDownMeta nud_y = new NumericUpDownMeta(click)
-                    {
-                        Minimum = 0,
-                        Maximum = Screen.PrimaryScreen.Bounds.Height,
-                        Value = click.Point.Y,
-                        Font = new Font("Segoe UI", 10),
-                        Size = new Size(85, 25),
-                        Location = new Point(52, 63),
-                        Name = "NUD_Y",
-                    };
+                        // Y
+                        Label y = new Label()
+                        {
+                            Text = "Y",
+                            Font = new Font("Segoe UI", 10),
+                            Size = new Size(19, 17),
+                            Location = new Point(27, 65),
+                        };
+                        NumericUpDown nud_y = new NumericUpDown()
+                        {
+                            Minimum = 0,
+                            Maximum = Screen.PrimaryScreen.Bounds.Height,
+                            Value = click.Point.Y,
+                            Font = new Font("Segoe UI", 10),
+                            Size = new Size(85, 25),
+                            Location = new Point(52, 63),
+                            Name = NUD_Y,
+                        };
 
-                    // Clicks count
-                    Label count = new Label()
-                    {
-                        Text = "Clicks count",
-                        Font = new Font("Segoe UI", 9),
-                        Size = new Size(75, 17),
-                        Location = new Point(150, 34),
-                    };
-                    NumericUpDownMeta nud_count = new NumericUpDownMeta(click)
-                    {
-                        Minimum = 1,
-                        Maximum = 10,
-                        Value = click.Count,
-                        Font = new Font("Segoe UI", 10),
-                        Size = new Size(85, 25),
-                        Location = new Point(225, 32),
-                        Name = "NUD_CLICKS_COUNT",
-                    };
+                        // Clicks count
+                        Label count = new Label()
+                        {
+                            Text = "Clicks count",
+                            Font = new Font("Segoe UI", 9),
+                            Size = new Size(75, 17),
+                            Location = new Point(150, 34),
+                        };
+                        NumericUpDown nud_count = new NumericUpDown()
+                        {
+                            Minimum = 1,
+                            Maximum = 10,
+                            Value = click.Count,
+                            Font = new Font("Segoe UI", 10),
+                            Size = new Size(85, 25),
+                            Location = new Point(225, 32),
+                            Name = NUD_CLICKS_COUNT,
+                        };
 
-                    // Delay before
-                    Label delay = new Label()
-                    {
-                        Text = "Delay before (ms)",
-                        Font = new Font("Segoe UI", 9),
-                        Size = new Size(75, 17),
-                        Location = new Point(150, 65),
-                    };
-                    NumericUpDownMeta nud_delay = new NumericUpDownMeta(click)
-                    {
-                        Minimum = 0,
-                        Maximum = 10000, // 10 sec - max delay
-                        Value = click.DelayBefore,
-                        Font = new Font("Segoe UI", 10),
-                        Size = new Size(85, 25),
-                        Location = new Point(225, 63),
-                        Name = "NUD_DELAY_BEFORE",
-                    };
+                        // Delay before
+                        Label delay = new Label()
+                        {
+                            Text = "Delay before (ms)",
+                            Font = new Font("Segoe UI", 9),
+                            Size = new Size(75, 17),
+                            Location = new Point(150, 65),
+                        };
+                        NumericUpDown nud_delay = new NumericUpDown()
+                        {
+                            Minimum = 0,
+                            Maximum = 10000, // 10 sec - max delay
+                            Value = click.DelayBefore,
+                            Font = new Font("Segoe UI", 10),
+                            Size = new Size(85, 25),
+                            Location = new Point(225, 63),
+                            Name = NUD_DELAY_BEFORE,
+                        };
 
-                    // Enabled
-                    CheckBoxMeta enabled = new CheckBoxMeta(click)
-                    {
-                        Text = "Enabled",
-                        Name = "CB_Enabled",
-                        Checked = click.Enabled,
-                        Font = new Font("Segoe UI", 9),
-                        Size = new Size(68, 17),
-                        Location = new Point(3, 113),
-                    };
+                        // Enabled
+                        CheckBox enabled = new CheckBox()
+                        {
+                            Text = "Enabled",
+                            Name = CB_Enabled,
+                            Checked = click.Enabled,
+                            Font = new Font("Segoe UI", 9),
+                            Size = new Size(68, 17),
+                            Location = new Point(3, 113),
+                        };
 
-                    // Clone button
-                    ButtonMeta clone = new ButtonMeta(click)
-                    {
-                        Text = "clone",
-                        Font = new Font("Segoe UI", 8),
-                        Size = new Size(50, 23),
-                        Location = new Point(300, 107),
-                    };
-                    clone.Click += Btn_Clone_Click;
+                        // Clone button
+                        Button clone = new Button()
+                        {
+                            Text = "clone",
+                            Font = new Font("Segoe UI", 8),
+                            Size = new Size(50, 23),
+                            Location = new Point(300, 107),
+                        };
+                        clone.Click += Btn_Clone_Click;
 
-                    Tabs_Clicks.TabPages[i].Controls.Add(x);
-                    Tabs_Clicks.TabPages[i].Controls.Add(nud_x);
-                    Tabs_Clicks.TabPages[i].Controls.Add(y);
-                    Tabs_Clicks.TabPages[i].Controls.Add(nud_y);
-                    Tabs_Clicks.TabPages[i].Controls.Add(count);
-                    Tabs_Clicks.TabPages[i].Controls.Add(nud_count);
-                    Tabs_Clicks.TabPages[i].Controls.Add(delay);
-                    Tabs_Clicks.TabPages[i].Controls.Add(nud_delay);
-                    Tabs_Clicks.TabPages[i].Controls.Add(enabled);
-                    Tabs_Clicks.TabPages[i].Controls.Add(clone);
+                        Tabs_Clicks.TabPages[i].Controls.Add(x);
+                        Tabs_Clicks.TabPages[i].Controls.Add(nud_x);
+                        Tabs_Clicks.TabPages[i].Controls.Add(y);
+                        Tabs_Clicks.TabPages[i].Controls.Add(nud_y);
+                        Tabs_Clicks.TabPages[i].Controls.Add(count);
+                        Tabs_Clicks.TabPages[i].Controls.Add(nud_count);
+                        Tabs_Clicks.TabPages[i].Controls.Add(delay);
+                        Tabs_Clicks.TabPages[i].Controls.Add(nud_delay);
+                        Tabs_Clicks.TabPages[i].Controls.Add(enabled);
+                        Tabs_Clicks.TabPages[i].Controls.Add(clone);
+                    }
                 }
-            }
-            else
-            {
-                foreach (TabPage tabPage in Tabs_Clicks.TabPages)
+                else
                 {
-                    (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
-                    NumericUpDownMeta nudCount = GetTabClicksCountControl(tabPage);
-                    NumericUpDownMeta nudDelay = GetTabDelayControl(tabPage);
-                    CheckBoxMeta cb = GetCurrentEnabledControl(tabPage);
+                    foreach (TabPage tabPage in Tabs_Clicks.TabPages)
+                    {
+                        (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
+                        NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
+                        NumericUpDown nudDelay = GetTabDelayControl(tabPage);
+                        CheckBox cb = GetCurrentEnabledControl(tabPage);
 
-                    Click click = NUDs.Item1.ClickObj;
+                        Click click = GetCurrentClickObj();
 
-                    NUDs.Item1.Value = click.Point.X;
-                    NUDs.Item2.Value = click.Point.Y;
-                    nudCount.Value = click.Count;
-                    nudDelay.Value = click.DelayBefore;
-                    cb.Checked = click.Enabled;
+                        NUDs.Item1.Value = click.Point.X;
+                        NUDs.Item2.Value = click.Point.Y;
+                        nudCount.Value = click.Count;
+                        nudDelay.Value = click.DelayBefore;
+                        cb.Checked = click.Enabled;
+                    }
                 }
             }
 
             SyncBGMode();
 
-            Btn_Remove.Enabled = parameters.Clicks.Count > 1;
+            Btn_Remove.Enabled = selectedTemplate.Clicks.Count > 1;
 
             BindingOn();
+        }
+
+        private void SyncCurrentClick()
+        {
+            BindingOff(Tabs_Clicks.SelectedTab);
+
+            if (selectedTemplate != null)
+            {
+                (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
+                NumericUpDown nudCount = GetTabClicksCountControl(Tabs_Clicks.SelectedTab);
+                NumericUpDown nudDelay = GetTabDelayControl(Tabs_Clicks.SelectedTab);
+                CheckBox cb = GetCurrentEnabledControl(Tabs_Clicks.SelectedTab);
+
+                Click click = GetCurrentClickObj();
+
+                NUDs.Item1.Value = click.Point.X;
+                NUDs.Item2.Value = click.Point.Y;
+                nudCount.Value = click.Count;
+                nudDelay.Value = click.DelayBefore;
+                cb.Checked = click.Enabled;
+
+            }
+
+            Btn_Remove.Enabled = selectedTemplate.Clicks.Count > 1;
+
+            BindingOn(Tabs_Clicks.SelectedTab);
         }
 
         private void SyncBGMode()
@@ -247,23 +275,6 @@ namespace NWN_ModuleRunner.Forms
             Btn_BGMode.Text = $"Turn BG mode {(bgMode ? "off" : "on")}";
             Lbl_Hint0.Visible = bgMode;
             Lbl_Hint1.Visible = bgMode;
-        }
-
-        private void NormalizeParameters()
-        {
-            if (parameters == null)
-                return;
-
-            if (parameters.Clicks == null)
-                parameters.Clicks = new List<Click>();
-            if (parameters.Clicks.Count <= 0)
-                parameters.Clicks.Add(new Click());
-
-            foreach (var click in parameters.Clicks)
-            {
-                if (click.Count < 1)
-                    click.Count = 1;
-            }
         }
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
@@ -278,7 +289,7 @@ namespace NWN_ModuleRunner.Forms
 
                     if (keyPressed == Keys.F9)
                     {
-                        ChangeCurrentPoint();
+                        ChangeCurrentClickCursorPoint();
                     }
                     #endregion
                 }
@@ -289,118 +300,82 @@ namespace NWN_ModuleRunner.Forms
 
         private int KeyboardProcLL(int code, IntPtr wParam, IntPtr lParam)
         {
-            if (bgMode && code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
+            if (bgMode)
             {
-                Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
+                if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
+                {
+                    Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
 
-                if (keyPressed == Keys.F5)
-                {
-                    Start();
-                }
-                else if (keyPressed == Keys.F9)
-                {
-                    ChangeCurrentPoint();
-                }
-                else if (keyPressed == Keys.F12)
-                {
-                    AddNew();
+                    if (keyPressed == Keys.F5)
+                    {
+                        Start();
+                    }
+                    else if (keyPressed == Keys.F9)
+                    {
+                        ChangeCurrentClickCursorPoint();
+                    }
+                    else if (keyPressed == Keys.F12)
+                    {
+                        AddClick();
+                    }
                 }
             }
 
             return PInvokeHelper.CallNextHookEx(IntPtr.Zero, code, wParam, lParam);
         }
 
-        private void ChangeCurrentPoint()
-        {
-            (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
-
-            if (Cursor.Position.X > NUDs.Item1.Maximum || Cursor.Position.Y > NUDs.Item2.Maximum)
-            {
-                Error("Coordinates are out of boundaries");
-            }
-            else
-            {
-                ChangePoint(Cursor.Position.X, Cursor.Position.Y);
-                SyncUIParams();
-            }
-        }
-
-        private void ChangePoint(int x, int y)
-        {
-            ChangePoint(Tabs_Clicks.SelectedTab, x, y);
-        }
-
-        private void ChangePoint(TabPage tabPage, int x, int y)
-        {
-            if (tabPage == null)
-            {
-                MessageBox.Show("Critical message has occured. Open log file for details.");
-                return;
-            }
-
-            (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
-
-            ChangePoint(NUDs.Item1.ClickObj, x, y);
-        }
-
-        private void ChangePoint(Click click, int x, int y)
-        {
-            if (click == null)
-            {
-                MessageBox.Show("Critical message has occured. Open log file for details.");
-                return;
-            }
-
-            var e = parameters.Clicks.FirstOrDefault(c => c == click);
-
-            if (e != null)
-            {
-                e.Point = new Point(x, y);
-            }
-        }
-
         private void BindingOn()
         {
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
-                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
-                NumericUpDownMeta nudCount = GetTabClicksCountControl(tab);
-                NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
-                CheckBoxMeta cbEnabled = GetTabEnabledControl(tab);
-
-                if (NUDs.Item1 != null)
-                    NUDs.Item1.ValueChanged += Coordinates_ValueChanged;
-                if (NUDs.Item2 != null)
-                    NUDs.Item2.ValueChanged += Coordinates_ValueChanged;
-                if (nudCount != null)
-                    nudCount.ValueChanged += ClickCount_ValueChanged;
-                if (nudDelay != null)
-                    nudDelay.ValueChanged += DelayBefore_ValueChanged;
-                if (cbEnabled != null)
-                    cbEnabled.CheckedChanged += Enabled_CheckedChanged;
+                BindingOn(tab);
             }
+        }
+
+        private void BindingOn(TabPage tabPage)
+        {
+            (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
+            NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
+            NumericUpDown nudDelay = GetTabDelayControl(tabPage);
+            CheckBox cbEnabled = GetTabEnabledControl(tabPage);
+
+            if (NUDs.Item1 != null)
+                NUDs.Item1.ValueChanged += Coordinates_ValueChanged;
+            if (NUDs.Item2 != null)
+                NUDs.Item2.ValueChanged += Coordinates_ValueChanged;
+            if (nudCount != null)
+                nudCount.ValueChanged += ClickCount_ValueChanged;
+            if (nudDelay != null)
+                nudDelay.ValueChanged += DelayBefore_ValueChanged;
+            if (cbEnabled != null)
+                cbEnabled.CheckedChanged += Enabled_CheckedChanged;
         }
 
         private void BindingOff()
         {
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
-                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tab);
-                NumericUpDownMeta nudCount = GetTabClicksCountControl(tab);
-                NumericUpDownMeta nudDelay = GetTabDelayControl(tab);
-                CheckBoxMeta cbEnabled = GetTabEnabledControl(tab);
-
-                if (NUDs.Item1 != null)
-                    NUDs.Item1.ValueChanged -= Coordinates_ValueChanged;
-                if (NUDs.Item2 != null)
-                    NUDs.Item2.ValueChanged -= Coordinates_ValueChanged;
-                if (nudCount != null)
-                    nudCount.ValueChanged -= ClickCount_ValueChanged;
-                if (nudDelay != null)
-                    nudDelay.ValueChanged -= DelayBefore_ValueChanged;
-                if (cbEnabled != null)
-                    cbEnabled.CheckedChanged -= Enabled_CheckedChanged;
+                BindingOff(tab);
             }
+        }
+
+        private void BindingOff(TabPage tabPage)
+        {
+            (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
+            NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
+            NumericUpDown nudDelay = GetTabDelayControl(tabPage);
+            CheckBox cbEnabled = GetTabEnabledControl(tabPage);
+
+            if (NUDs.Item1 != null)
+                NUDs.Item1.ValueChanged -= Coordinates_ValueChanged;
+            if (NUDs.Item2 != null)
+                NUDs.Item2.ValueChanged -= Coordinates_ValueChanged;
+            if (nudCount != null)
+                nudCount.ValueChanged -= ClickCount_ValueChanged;
+            if (nudDelay != null)
+                nudDelay.ValueChanged -= DelayBefore_ValueChanged;
+            if (cbEnabled != null)
+                cbEnabled.CheckedChanged -= Enabled_CheckedChanged;
         }
 
         private void SelectNextTab(bool forward = true)
@@ -424,13 +399,6 @@ namespace NWN_ModuleRunner.Forms
             }
         }
 
-        private Click GetCurrentClick()
-        {
-            NumericUpDownMeta nudDelay = GetCurrentDelayControl();
-
-            return nudDelay.ClickObj;
-        }
-
         private void Error(String text)
         {
             MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -442,47 +410,139 @@ namespace NWN_ModuleRunner.Forms
             //Lbl_CursorXY.Text = $"{Cursor.Position.X};{Cursor.Position.Y}";
         }
 
+        #region Template/clicks manipulations
+        private void AddTemplate()
+        {
+            service.AddTemplate(service.Templates.Count.ToString());
+            selectedTemplate = service.Templates.LastOrDefault();
+            SyncUIParams();
+        }
+
+        private void AddClick()
+        {
+            service.AddClick(selectedTemplate);
+            SyncUIParams();
+            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
+        }
+
+        private void RemoveCurrentClick()
+        {
+            int index = Tabs_Clicks.SelectedIndex;
+
+            service.RemoveClick(selectedTemplate, GetCurrentClickObj());
+            SyncUIParams();
+
+            if (index != 0)
+            {
+                if (index <= Tabs_Clicks.TabCount - 1)
+                    Tabs_Clicks.SelectedIndex = index;
+                else
+                    Tabs_Clicks.SelectedIndex = index - 1;
+            }
+        }
+
+        private void RemoveAllClicks()
+        {
+            service.RemoveAllClicks(selectedTemplate);
+            SyncUIParams();
+        }
+
+        private void CloneClick()
+        {
+            service.CloneClick(selectedTemplate, GetCurrentClickObj());
+            SyncUIParams();
+            Tabs_Clicks.SelectedIndex = Tabs_Clicks.TabCount - 1;
+        }
+
+        private Click GetCurrentClickObj()
+        {
+            TabPageMeta tabPage = Tabs_Clicks.SelectedTab as TabPageMeta;
+
+            if (tabPage == null || tabPage.ClickObj == null)
+                throw new Exception(ERROR);
+
+            return tabPage.ClickObj;
+        }
+
+        private void ChangeCurrentClickCursorPoint()
+        {
+            Click click = GetCurrentClickObj();
+            if (click == null)
+            {
+                MessageBox.Show(ERROR);
+                return;
+            }
+
+            var NUDs = GetCurrentCoordinatesControls();
+
+            if (Cursor.Position.X > NUDs.Item1.Maximum || Cursor.Position.Y > NUDs.Item2.Maximum)
+            {
+                Error("Coordinates are out of boundaries");
+            }
+
+            service.ChangeClickPoint(selectedTemplate, click, new Point(Cursor.Position.X, Cursor.Position.Y));
+            SyncCurrentClick();
+        }
+
+        private void ChangePoint(Click click, int x, int y)
+        {
+            if (click == null)
+            {
+                MessageBox.Show(ERROR);
+                return;
+            }
+
+            service.ChangeClickPoint(selectedTemplate, click, new Point(x, y));
+        }
+        #endregion
+
         #region Getting Controls
-        private (NumericUpDownMeta, NumericUpDownMeta) GetCurrentCoordinatesControls()
+        private (NumericUpDown, NumericUpDown) GetCurrentCoordinatesControls()
         {
             return GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
         }
 
-        private NumericUpDownMeta GetCurrentDelayControl()
+        private NumericUpDown GetCurrentClicksCountControl(TabPage tabPage)
+        {
+            return GetTabClicksCountControl(Tabs_Clicks.SelectedTab);
+        }
+
+        private NumericUpDown GetCurrentDelayControl()
         {
             return GetTabDelayControl(Tabs_Clicks.SelectedTab);
         }
 
-        private CheckBoxMeta GetCurrentEnabledControl(TabPage tabPage)
+        private CheckBox GetCurrentEnabledControl(TabPage tabPage)
         {
             return GetTabEnabledControl(Tabs_Clicks.SelectedTab);
         }
 
-        private (NumericUpDownMeta, NumericUpDownMeta) GetTabCoordinatesControls(TabPage tabPage)
+
+        private (NumericUpDown, NumericUpDown) GetTabCoordinatesControls(TabPage tabPage)
         {
-            NumericUpDownMeta x = tabPage.Controls["NUD_X"] as NumericUpDownMeta;
-            NumericUpDownMeta y = tabPage.Controls["NUD_Y"] as NumericUpDownMeta;
+            NumericUpDown x = tabPage.Controls[NUD_X] as NumericUpDown;
+            NumericUpDown y = tabPage.Controls[NUD_Y] as NumericUpDown;
 
             return (x, y);
         }
 
-        private NumericUpDownMeta GetTabClicksCountControl(TabPage tabPage)
+        private NumericUpDown GetTabClicksCountControl(TabPage tabPage)
         {
-            NumericUpDownMeta result = tabPage.Controls["NUD_CLICKS_COUNT"] as NumericUpDownMeta;
+            NumericUpDown result = tabPage.Controls[NUD_CLICKS_COUNT] as NumericUpDown;
 
             return result;
         }
 
-        private NumericUpDownMeta GetTabDelayControl(TabPage tabPage)
+        private NumericUpDown GetTabDelayControl(TabPage tabPage)
         {
-            NumericUpDownMeta result = tabPage.Controls["NUD_DELAY_BEFORE"] as NumericUpDownMeta;
+            NumericUpDown result = tabPage.Controls[NUD_DELAY_BEFORE] as NumericUpDown;
 
             return result;
         }
 
-        private CheckBoxMeta GetTabEnabledControl(TabPage tabPage)
+        private CheckBox GetTabEnabledControl(TabPage tabPage)
         {
-            CheckBoxMeta result = tabPage.Controls["CB_Enabled"] as CheckBoxMeta;
+            CheckBox result = tabPage.Controls[CB_Enabled] as CheckBox;
 
             return result;
         }
@@ -507,7 +567,7 @@ namespace NWN_ModuleRunner.Forms
                 bool result = true;
                 foreach (TabPage item in Tabs_Clicks.TabPages)
                 {
-                    (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(item);
+                    (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(item);
 
                     result = result
                         && NUDs.Item1.Value >= 0 && NUDs.Item1.Value <= w
@@ -549,76 +609,55 @@ namespace NWN_ModuleRunner.Forms
 
         private void Coordinates_ValueChanged(object sender, EventArgs e)
         {
-            if (sender is NumericUpDownMeta nud && nud.Parent is TabPage tabPage)
+            if (sender is NumericUpDown nud && nud.Parent is TabPage tabPage)
             {
-                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetTabCoordinatesControls(tabPage);
-                ChangePoint(nud.ClickObj, (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
+                (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
+                ChangePoint(GetCurrentClickObj(), (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
             }
         }
 
         private void ClickCount_ValueChanged(object sender, EventArgs e)
         {
-            if (sender is NumericUpDownMeta nud)
+            if (sender is NumericUpDown nud)
             {
-                nud.ClickObj.Count = (int)nud.Value;
+                GetCurrentClickObj().Count = (int)nud.Value;
             }
         }
 
         private void DelayBefore_ValueChanged(object sender, EventArgs e)
         {
-            if (sender is NumericUpDownMeta nud)
+            if (sender is NumericUpDown nud)
             {
-                nud.ClickObj.DelayBefore = (int)nud.Value;
+                GetCurrentClickObj().DelayBefore = (int)nud.Value;
             }
         }
 
         private void Enabled_CheckedChanged(object sender, EventArgs e)
         {
-            if (sender is CheckBoxMeta cb)
+            if (sender is CheckBox cb)
             {
-                cb.ClickObj.Enabled = cb.Checked;
+                GetCurrentClickObj().Enabled = cb.Checked;
             }
         }
 
         private void Btn_Clone_Click(object sender, EventArgs e)
         {
-            Click click = GetCurrentClick();
-            Click copy = click.Clone() as Click;
-
-            AddNew(copy);
+            CloneClick();
         }
 
         private void Btn_Add_Click(object sender, EventArgs e)
         {
-            AddNew();
+            AddClick();
         }
 
         private void Btn_Remove_Click(object sender, EventArgs e)
         {
-            if (parameters.Clicks.Count > 1)
-            {
-                int index = Tabs_Clicks.SelectedIndex;
-
-                (NumericUpDownMeta, NumericUpDownMeta) NUDs = GetCurrentCoordinatesControls();
-
-                parameters.Clicks.Remove(NUDs.Item1.ClickObj);
-                SyncUIParams();
-
-                if (index != 0)
-                {
-                    if (index <= Tabs_Clicks.TabCount - 1)
-                        Tabs_Clicks.SelectedIndex = index;
-                    else
-                        Tabs_Clicks.SelectedIndex = index - 1;
-                }
-            }
+            RemoveCurrentClick();
         }
 
         private void Btn_Clear_Click(object sender, EventArgs e)
         {
-            parameters.Clicks = null;
-            NormalizeParameters();
-            SyncUIParams();
+            RemoveAllClicks();
         }
 
         private void Btn_BGMode_Click(object sender, EventArgs e)
@@ -630,22 +669,29 @@ namespace NWN_ModuleRunner.Forms
 
         private void Btn_Save_Click(object sender, EventArgs e)
         {
-            if (ParametersHelper.TryWriteParameters(parameters))
+            if (service.TryWriteParameters())
             {
-                prevParameters = parameters.Clone() as Parameters;
                 MessageBox.Show("Saved", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                Error("Error occured while saving parameters. Open log file for details.");
+                Error(SAVE_ERROR);
             }
+        }
+
+        private void Tabs_Clicks_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 'q')
+                SelectNextTab(false);
+            else if (e.KeyChar == 'e')
+                SelectNextTab();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (parameters.ShowFinalDialog)
+            if (service.ShowFinalDialog)
             {
-                if (!exit && areParametersChanged())
+                if (!exit && service.AreParametersChanged)
                 {
                     foreach (var hookId in hookIds)
                     {
@@ -653,7 +699,7 @@ namespace NWN_ModuleRunner.Forms
                             PInvokeHelper.UnhookWindowsHookEx(hookId);
                     }
 
-                    ExitForm exitForm = new ExitForm(parameters);
+                    ExitForm exitForm = new ExitForm(service);
                     exitForm.Show(this);
                     exit = true;
                     exitForm.FormClosed += delegate (object obj, FormClosedEventArgs agrs)
@@ -665,21 +711,13 @@ namespace NWN_ModuleRunner.Forms
             }
             else
             {
-                if (parameters.SaveParameters)
+                if (service.SaveParameters)
                 {
-                    if (!ParametersHelper.TryWriteParameters(parameters))
-                        Error("Error occured while saving parameters. Open log file for details.");
+                    if (!service.TryWriteParameters())
+                        Error(SAVE_ERROR);
                 }
             }
         }
         #endregion
-
-        private void Tabs_Clicks_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == 'q')
-                SelectNextTab(false);
-            else if (e.KeyChar == 'e')
-                SelectNextTab();
-        }
     }
 }
