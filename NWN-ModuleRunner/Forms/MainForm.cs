@@ -482,6 +482,7 @@ namespace NWN_ModuleRunner.Forms
             if (Cursor.Position.X > NUDs.Item1.Maximum || Cursor.Position.Y > NUDs.Item2.Maximum)
             {
                 Error("Coordinates are out of boundaries");
+                return;
             }
 
             service.ChangeClickPoint(selectedTemplate, click, new Point(Cursor.Position.X, Cursor.Position.Y));
