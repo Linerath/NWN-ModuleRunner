@@ -30,8 +30,8 @@
         {
             this.Btn_Start = new System.Windows.Forms.Button();
             this.Tabs_Clicks = new System.Windows.Forms.TabControl();
-            this.Btn_Add = new System.Windows.Forms.Button();
-            this.Btn_Remove = new System.Windows.Forms.Button();
+            this.Btn_AddClick = new System.Windows.Forms.Button();
+            this.Btn_RemoveClick = new System.Windows.Forms.Button();
             this.Btn_BGMode = new System.Windows.Forms.Button();
             this.Btn_Save = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -42,6 +42,8 @@
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.CB_Template = new System.Windows.Forms.ComboBox();
             this.Lbl_Template = new System.Windows.Forms.Label();
+            this.Btn_RemoveTemplate = new System.Windows.Forms.Button();
+            this.Btn_AddTemplate = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -66,27 +68,27 @@
             this.Tabs_Clicks.TabIndex = 0;
             this.Tabs_Clicks.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.Tabs_Clicks_KeyPress);
             // 
-            // Btn_Add
+            // Btn_AddClick
             // 
-            this.Btn_Add.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_Add.Location = new System.Drawing.Point(6, 184);
-            this.Btn_Add.Name = "Btn_Add";
-            this.Btn_Add.Size = new System.Drawing.Size(30, 25);
-            this.Btn_Add.TabIndex = 2;
-            this.Btn_Add.Text = "+";
-            this.Btn_Add.UseVisualStyleBackColor = true;
-            this.Btn_Add.Click += new System.EventHandler(this.Btn_Add_Click);
+            this.Btn_AddClick.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_AddClick.Location = new System.Drawing.Point(6, 184);
+            this.Btn_AddClick.Name = "Btn_AddClick";
+            this.Btn_AddClick.Size = new System.Drawing.Size(30, 25);
+            this.Btn_AddClick.TabIndex = 2;
+            this.Btn_AddClick.Text = "+";
+            this.Btn_AddClick.UseVisualStyleBackColor = true;
+            this.Btn_AddClick.Click += new System.EventHandler(this.Btn_AddClick_Click);
             // 
-            // Btn_Remove
+            // Btn_RemoveClick
             // 
-            this.Btn_Remove.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_Remove.Location = new System.Drawing.Point(45, 184);
-            this.Btn_Remove.Name = "Btn_Remove";
-            this.Btn_Remove.Size = new System.Drawing.Size(30, 25);
-            this.Btn_Remove.TabIndex = 3;
-            this.Btn_Remove.Text = "-";
-            this.Btn_Remove.UseVisualStyleBackColor = true;
-            this.Btn_Remove.Click += new System.EventHandler(this.Btn_Remove_Click);
+            this.Btn_RemoveClick.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_RemoveClick.Location = new System.Drawing.Point(45, 184);
+            this.Btn_RemoveClick.Name = "Btn_RemoveClick";
+            this.Btn_RemoveClick.Size = new System.Drawing.Size(30, 25);
+            this.Btn_RemoveClick.TabIndex = 3;
+            this.Btn_RemoveClick.Text = "-";
+            this.Btn_RemoveClick.UseVisualStyleBackColor = true;
+            this.Btn_RemoveClick.Click += new System.EventHandler(this.Btn_RemoveClick_Click);
             // 
             // Btn_BGMode
             // 
@@ -167,9 +169,9 @@
             // 
             this.groupBox2.Controls.Add(this.Tabs_Clicks);
             this.groupBox2.Controls.Add(this.Btn_Start);
-            this.groupBox2.Controls.Add(this.Btn_Add);
+            this.groupBox2.Controls.Add(this.Btn_AddClick);
             this.groupBox2.Controls.Add(this.Btn_Clear);
-            this.groupBox2.Controls.Add(this.Btn_Remove);
+            this.groupBox2.Controls.Add(this.Btn_RemoveClick);
             this.groupBox2.Controls.Add(this.Btn_BGMode);
             this.groupBox2.Controls.Add(this.Btn_Save);
             this.groupBox2.Location = new System.Drawing.Point(12, 37);
@@ -188,6 +190,7 @@
             this.CB_Template.Name = "CB_Template";
             this.CB_Template.Size = new System.Drawing.Size(121, 25);
             this.CB_Template.TabIndex = 1;
+            this.CB_Template.SelectedIndexChanged += new System.EventHandler(this.CB_Template_SelectedIndexChanged);
             // 
             // Lbl_Template
             // 
@@ -199,11 +202,35 @@
             this.Lbl_Template.TabIndex = 21;
             this.Lbl_Template.Text = "Template:";
             // 
+            // Btn_RemoveTemplate
+            // 
+            this.Btn_RemoveTemplate.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_RemoveTemplate.Location = new System.Drawing.Point(202, 6);
+            this.Btn_RemoveTemplate.Name = "Btn_RemoveTemplate";
+            this.Btn_RemoveTemplate.Size = new System.Drawing.Size(30, 25);
+            this.Btn_RemoveTemplate.TabIndex = 23;
+            this.Btn_RemoveTemplate.Text = "-";
+            this.Btn_RemoveTemplate.UseVisualStyleBackColor = true;
+            this.Btn_RemoveTemplate.Click += new System.EventHandler(this.Btn_RemoveTemplate_Click);
+            // 
+            // Btn_AddTemplate
+            // 
+            this.Btn_AddTemplate.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_AddTemplate.Location = new System.Drawing.Point(238, 6);
+            this.Btn_AddTemplate.Name = "Btn_AddTemplate";
+            this.Btn_AddTemplate.Size = new System.Drawing.Size(30, 25);
+            this.Btn_AddTemplate.TabIndex = 24;
+            this.Btn_AddTemplate.Text = "+";
+            this.Btn_AddTemplate.UseVisualStyleBackColor = true;
+            this.Btn_AddTemplate.Click += new System.EventHandler(this.Btn_AddTemplate_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(402, 373);
+            this.Controls.Add(this.Btn_AddTemplate);
+            this.Controls.Add(this.Btn_RemoveTemplate);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.Lbl_Template);
             this.Controls.Add(this.CB_Template);
@@ -227,8 +254,8 @@
 
         private System.Windows.Forms.Button Btn_Start;
         private System.Windows.Forms.TabControl Tabs_Clicks;
-        private System.Windows.Forms.Button Btn_Add;
-        private System.Windows.Forms.Button Btn_Remove;
+        private System.Windows.Forms.Button Btn_AddClick;
+        private System.Windows.Forms.Button Btn_RemoveClick;
         private System.Windows.Forms.Button Btn_BGMode;
         private System.Windows.Forms.Button Btn_Save;
         private System.Windows.Forms.GroupBox groupBox1;
@@ -239,6 +266,8 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.ComboBox CB_Template;
         private System.Windows.Forms.Label Lbl_Template;
+        private System.Windows.Forms.Button Btn_RemoveTemplate;
+        private System.Windows.Forms.Button Btn_AddTemplate;
     }
 }
 

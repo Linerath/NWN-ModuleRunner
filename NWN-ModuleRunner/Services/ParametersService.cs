@@ -66,18 +66,30 @@ namespace NWN_ModuleRunner.Services
         }
 
         #region Template manipulations
+        public Template FindTemplate(String name)
+        {
+            Template result = parameters.Templates.FirstOrDefault(x => x.Name == name);
+
+            return result;
+        }
+
         public void AddTemplate(String name)
         {
             parameters.Templates.Add(new Template(name, true));
         }
 
-        public void RemoveTemplate(Template template)
+        public bool TryRemoveTemplate(Template template)
         {
             if (template == null)
                 throw new ArgumentNullException(nameof(template));
 
             if (parameters.Templates.Count > 1)
+            {
                 parameters.Templates.Remove(template);
+                return true;
+            }
+
+            return false;
         }
 
         public void CloneTemplate(Template template)
@@ -120,7 +132,7 @@ namespace NWN_ModuleRunner.Services
         public void RemoveAllClicks(Template template)
         {
             CheckTemplate(template);
-
+            
             template.Clicks.Clear();
             template.Clicks.Add(new Click());
         }
@@ -357,7 +369,7 @@ namespace NWN_ModuleRunner.Services
     public sealed class Template : ICloneable
     {
         public List<Click> Clicks { get; set; } = new List<Click>();
-        public String Name { get; set; }
+        public String Name { get; private set; }
 
         public const String DEFAULT_TEMPLATE_NAME = "<No name>";
 
@@ -369,6 +381,11 @@ namespace NWN_ModuleRunner.Services
                 Clicks.Add(new Click());
         }
 
+
+        public void ChangeName(String newName)
+        {
+            Name = newName ?? DEFAULT_TEMPLATE_NAME;
+        }
 
         public bool Equals(Template template)
         {

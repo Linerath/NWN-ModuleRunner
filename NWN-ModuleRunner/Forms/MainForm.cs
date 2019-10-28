@@ -98,6 +98,7 @@ namespace NWN_ModuleRunner.Forms
 
             if (selectedTemplate != null)
             {
+                CB_Template.SelectedIndex = GetTemplateIndex(selectedTemplate);
                 if (selectedTemplate.Clicks.Count != Tabs_Clicks.TabCount)
                 {
                     Tabs_Clicks.TabPages.Clear();
@@ -243,7 +244,8 @@ namespace NWN_ModuleRunner.Forms
 
             SyncBGMode();
 
-            Btn_Remove.Enabled = selectedTemplate.Clicks.Count > 1;
+            Btn_RemoveTemplate.Enabled = service.Templates.Count > 1;
+            Btn_RemoveClick.Enabled = selectedTemplate.Clicks.Count > 1;
 
             BindingOn();
         }
@@ -269,7 +271,7 @@ namespace NWN_ModuleRunner.Forms
 
             }
 
-            Btn_Remove.Enabled = selectedTemplate.Clicks.Count > 1;
+            Btn_RemoveClick.Enabled = selectedTemplate.Clicks.Count > 1;
 
             BindingOn(Tabs_Clicks.SelectedTab);
         }
@@ -330,6 +332,7 @@ namespace NWN_ModuleRunner.Forms
 
         private void BindingOn()
         {
+            CB_Template.SelectedIndexChanged += CB_Template_SelectedIndexChanged;
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
                 BindingOn(tab);
@@ -357,6 +360,7 @@ namespace NWN_ModuleRunner.Forms
 
         private void BindingOff()
         {
+            CB_Template.SelectedIndexChanged -= CB_Template_SelectedIndexChanged;
             foreach (TabPage tab in Tabs_Clicks.TabPages)
             {
                 BindingOff(tab);
@@ -415,11 +419,42 @@ namespace NWN_ModuleRunner.Forms
         }
 
         #region Template/clicks manipulations
+        private Template GetTemplate(int index)
+        {
+            if (index < 0 || index >= service.Templates.Count)
+            {
+                Error(ERROR);
+                return null;
+            }
+
+            return service.Templates[index];
+        }
+
+        private int GetTemplateIndex(Template template)
+        {
+            if (template == null)
+            {
+                Error(ERROR);
+                return -1;
+            }
+
+            return service.Templates.FindIndex(x => x == template);
+        }
+
         private void AddTemplate()
         {
-            service.AddTemplate(service.Templates.Count.ToString());
+            service.AddTemplate($"Tmp_{service.Templates.Count}");
             selectedTemplate = service.Templates.LastOrDefault();
             SyncUIParams();
+        }
+
+        private void RemoveCurrentTemplate()
+        {
+            if (service.TryRemoveTemplate(selectedTemplate))
+            {
+                selectedTemplate = service.Templates.FirstOrDefault();
+                SyncUIParams();
+            }
         }
 
         private void AddClick()
@@ -607,6 +642,26 @@ namespace NWN_ModuleRunner.Forms
         #endregion
 
         #region Events
+        private void CB_Template_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            selectedTemplate = GetTemplate(CB_Template.SelectedIndex);
+
+            if (selectedTemplate != null)
+            {
+                SyncUIParams();
+            }
+        }
+
+        private void Btn_AddTemplate_Click(object sender, EventArgs e)
+        {
+            AddTemplate();
+        }
+
+        private void Btn_RemoveTemplate_Click(object sender, EventArgs e)
+        {
+            RemoveCurrentTemplate();
+        }
+
         private void Btn_Start_Click(object sender, EventArgs e)
         {
             Start();
@@ -650,12 +705,12 @@ namespace NWN_ModuleRunner.Forms
             CloneClick();
         }
 
-        private void Btn_Add_Click(object sender, EventArgs e)
+        private void Btn_AddClick_Click(object sender, EventArgs e)
         {
             AddClick();
         }
 
-        private void Btn_Remove_Click(object sender, EventArgs e)
+        private void Btn_RemoveClick_Click(object sender, EventArgs e)
         {
             RemoveCurrentClick();
         }
