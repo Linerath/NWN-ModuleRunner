@@ -92,7 +92,9 @@ namespace NWN_ModuleRunner.Services
 
             if (parameters.Templates.Count > 1)
             {
-                parameters.Templates.Remove(template);
+                int index = parameters.Templates.FindIndex(x => x == template);
+                parameters.Templates.RemoveAt(index);
+
                 return true;
             }
 
@@ -447,7 +449,7 @@ namespace NWN_ModuleRunner.Services
 
         public object Clone()
         {
-            Template copy = new Template($"{Name}+");
+            Template copy = new Template(Name);
 
             foreach (var click in Clicks)
             {
