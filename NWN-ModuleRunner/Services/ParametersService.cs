@@ -73,9 +73,16 @@ namespace NWN_ModuleRunner.Services
             return result;
         }
 
-        public void AddTemplate(String name)
+        public ResultModel TryAddTemplate(String name)
         {
+            if (String.IsNullOrWhiteSpace(name))
+                return new ResultModel("Name is empty.");
+            if (TemplateNameExists(name))
+                return new ResultModel("Name already exists.");
+
             parameters.Templates.Add(new Template(name, true));
+
+            return new ResultModel(true);
         }
 
         public bool TryRemoveTemplate(Template template)
@@ -99,6 +106,11 @@ namespace NWN_ModuleRunner.Services
 
             Template copy = template.Clone() as Template;
             parameters.Templates.Add(copy);
+        }
+
+        public bool TemplateNameExists(String name)
+        {
+            return Templates.Any(x => x.Name == name);
         }
         #endregion
 
@@ -132,7 +144,7 @@ namespace NWN_ModuleRunner.Services
         public void RemoveAllClicks(Template template)
         {
             CheckTemplate(template);
-            
+
             template.Clicks.Clear();
             template.Clicks.Add(new Click());
         }
@@ -395,6 +407,9 @@ namespace NWN_ModuleRunner.Services
             if (ReferenceEquals(this, template))
                 return true;
 
+            if (Name != template.Name)
+                return false;
+
             bool temp = true;
 
             temp = (Clicks == null && template.Clicks == null)
@@ -489,6 +504,26 @@ namespace NWN_ModuleRunner.Services
                 Enabled = Enabled,
                 Right = Right,
             };
+        }
+    }
+
+    public class ResultModel
+    {
+        public bool Success { get; set; }
+        public String Message { get; set; }
+
+
+        public ResultModel()
+        { }
+
+        public ResultModel(String message)
+        {
+            Message = message;
+        }
+
+        public ResultModel(bool success)
+        {
+            Success = success;
         }
     }
 }

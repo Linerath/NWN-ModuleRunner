@@ -439,11 +439,17 @@ namespace NWN_ModuleRunner.Forms
             return service.Templates.FindIndex(x => x == template);
         }
 
-        private void AddTemplate()
+        private ResultModel TryAddTemplate(String name)
         {
-            service.AddTemplate($"Tmp_{service.Templates.Count}");
-            selectedTemplate = service.Templates.LastOrDefault();
-            SyncUIParams();
+            var result = service.TryAddTemplate(name);
+
+            if (result.Success)
+            {
+                selectedTemplate = service.Templates.LastOrDefault();
+                SyncUIParams();
+            }
+
+            return result;
         }
 
         private void RemoveCurrentTemplate()
@@ -639,7 +645,8 @@ namespace NWN_ModuleRunner.Forms
 
         private void Btn_AddTemplate_Click(object sender, EventArgs e)
         {
-            AddTemplate();
+            EnterNameForm nameForm = new EnterNameForm(TryAddTemplate, "Template name");
+            nameForm.Show(this);
         }
 
         private void Btn_RemoveTemplate_Click(object sender, EventArgs e)
