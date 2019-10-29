@@ -239,20 +239,14 @@ namespace NWN_ModuleRunner.Forms
                 {
                     foreach (TabPage tabPage in Tabs_Clicks.TabPages)
                     {
-                        (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
-                        NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
-                        NumericUpDown nudDelay = GetTabDelayControl(tabPage);
-                        CheckBox cbEnabled = GetCurrentEnabledControl(tabPage);
-                        CheckBox cbRight = GetCurrentRightClickControl(tabPage);
-
                         Click click = GetCurrentClickObj();
 
-                        NUDs.Item1.Value = click.Point.X;
-                        NUDs.Item2.Value = click.Point.Y;
-                        nudCount.Value = click.Count;
-                        nudDelay.Value = click.DelayBefore;
-                        cbEnabled.Checked = click.Enabled;
-                        cbRight.Checked = click.Right;
+                        (this[tabPage, ControlType.CoordinateX] as NumericUpDown).Value = click.Point.X;
+                        (this[tabPage, ControlType.CoordinateY] as NumericUpDown).Value = click.Point.Y;
+                        (this[tabPage, ControlType.ClicksCount] as NumericUpDown).Value = click.Count;
+                        (this[tabPage, ControlType.Delay] as NumericUpDown).Value = click.DelayBefore;
+                        (this[tabPage, ControlType.Enabled] as CheckBox).Checked = click.Enabled;
+                        (this[tabPage, ControlType.RightClick] as CheckBox).Checked = click.Right;
                     }
                 }
             }
@@ -271,20 +265,14 @@ namespace NWN_ModuleRunner.Forms
 
             if (selectedTemplate != null)
             {
-                (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
-                NumericUpDown nudCount = GetTabClicksCountControl(Tabs_Clicks.SelectedTab);
-                NumericUpDown nudDelay = GetTabDelayControl(Tabs_Clicks.SelectedTab);
-                CheckBox cbEnabled = GetCurrentEnabledControl(Tabs_Clicks.SelectedTab);
-                CheckBox cbRight = GetCurrentRightClickControl(Tabs_Clicks.SelectedTab);
-
                 Click click = GetCurrentClickObj();
 
-                NUDs.Item1.Value = click.Point.X;
-                NUDs.Item2.Value = click.Point.Y;
-                nudCount.Value = click.Count;
-                nudDelay.Value = click.DelayBefore;
-                cbEnabled.Checked = click.Enabled;
-                cbRight.Checked = click.Right;
+                (this[ControlType.CoordinateX] as NumericUpDown).Value = click.Point.X;
+                (this[ControlType.CoordinateY] as NumericUpDown).Value = click.Point.Y;
+                (this[ControlType.ClicksCount] as NumericUpDown).Value = click.Count;
+                (this[ControlType.Delay] as NumericUpDown).Value = click.DelayBefore;
+                (this[ControlType.Enabled] as CheckBox).Checked = click.Enabled;
+                (this[ControlType.RightClick] as CheckBox).Checked = click.Right;
             }
 
             Btn_RemoveClick.Enabled = selectedTemplate.Clicks.Count > 1;
@@ -357,23 +345,17 @@ namespace NWN_ModuleRunner.Forms
 
         private void BindingOn(TabPage tabPage)
         {
-            (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
-            NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
-            NumericUpDown nudDelay = GetTabDelayControl(tabPage);
-            CheckBox cbEnabled = GetTabEnabledControl(tabPage);
-            CheckBox cbRight = GetTabRightClickControl(tabPage);
-
-            if (NUDs.Item1 != null)
-                NUDs.Item1.ValueChanged += Coordinates_ValueChanged;
-            if (NUDs.Item2 != null)
-                NUDs.Item2.ValueChanged += Coordinates_ValueChanged;
-            if (nudCount != null)
+            if (this[tabPage, ControlType.CoordinateX] is NumericUpDown nudX)
+                nudX.ValueChanged += Coordinates_ValueChanged;
+            if (this[tabPage, ControlType.CoordinateY] is NumericUpDown nudY)
+                nudY.ValueChanged += Coordinates_ValueChanged;
+            if (this[tabPage, ControlType.ClicksCount] is NumericUpDown nudCount)
                 nudCount.ValueChanged += ClickCount_ValueChanged;
-            if (nudDelay != null)
+            if (this[tabPage, ControlType.Delay] is NumericUpDown nudDelay)
                 nudDelay.ValueChanged += DelayBefore_ValueChanged;
-            if (cbEnabled != null)
+            if (this[tabPage, ControlType.Enabled] is CheckBox cbEnabled)
                 cbEnabled.CheckedChanged += Enabled_CheckedChanged;
-            if (cbRight != null)
+            if (this[tabPage, ControlType.RightClick] is CheckBox cbRight)
                 cbRight.CheckedChanged += Right_CheckedChanged;
         }
 
@@ -388,23 +370,17 @@ namespace NWN_ModuleRunner.Forms
 
         private void BindingOff(TabPage tabPage)
         {
-            (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
-            NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
-            NumericUpDown nudDelay = GetTabDelayControl(tabPage);
-            CheckBox cbEnabled = GetTabEnabledControl(tabPage);
-            CheckBox cbRight = GetTabRightClickControl(tabPage);
-
-            if (NUDs.Item1 != null)
-                NUDs.Item1.ValueChanged -= Coordinates_ValueChanged;
-            if (NUDs.Item2 != null)
-                NUDs.Item2.ValueChanged -= Coordinates_ValueChanged;
-            if (nudCount != null)
+            if (this[tabPage, ControlType.CoordinateX] is NumericUpDown nudX)
+                nudX.ValueChanged -= Coordinates_ValueChanged;
+            if (this[tabPage, ControlType.CoordinateY] is NumericUpDown nudY)
+                nudY.ValueChanged -= Coordinates_ValueChanged;
+            if (this[tabPage, ControlType.ClicksCount] is NumericUpDown nudCount)
                 nudCount.ValueChanged -= ClickCount_ValueChanged;
-            if (nudDelay != null)
+            if (this[tabPage, ControlType.Delay] is NumericUpDown nudDelay)
                 nudDelay.ValueChanged -= DelayBefore_ValueChanged;
-            if (cbEnabled != null)
+            if (this[tabPage, ControlType.Enabled] is CheckBox cbEnabled)
                 cbEnabled.CheckedChanged -= Enabled_CheckedChanged;
-            if (cbRight != null)
+            if (this[tabPage, ControlType.RightClick] is CheckBox cbRight)
                 cbRight.CheckedChanged -= Right_CheckedChanged;
         }
 
@@ -534,9 +510,10 @@ namespace NWN_ModuleRunner.Forms
                 return;
             }
 
-            var NUDs = GetCurrentCoordinatesControls();
+            NumericUpDown nudX = this[ControlType.CoordinateX] as NumericUpDown;
+            NumericUpDown nudY = this[ControlType.CoordinateY] as NumericUpDown;
 
-            if (Cursor.Position.X > NUDs.Item1.Maximum || Cursor.Position.Y > NUDs.Item2.Maximum)
+            if (Cursor.Position.X > nudX.Maximum || Cursor.Position.Y > nudY.Maximum)
             {
                 Error("Coordinates are out of boundaries");
                 return;
@@ -559,66 +536,36 @@ namespace NWN_ModuleRunner.Forms
         #endregion
 
         #region Getting Controls
-        private (NumericUpDown, NumericUpDown) GetCurrentCoordinatesControls()
+        private Control this[ControlType controlType]
         {
-            return GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
+            get
+            {
+                return this[Tabs_Clicks.SelectedTab, controlType];
+            }
         }
 
-        private NumericUpDown GetCurrentClicksCountControl(TabPage tabPage)
+        private Control this[TabPage tabPage, ControlType controlType]
         {
-            return GetTabClicksCountControl(Tabs_Clicks.SelectedTab);
-        }
-
-        private NumericUpDown GetCurrentDelayControl()
-        {
-            return GetTabDelayControl(Tabs_Clicks.SelectedTab);
-        }
-
-        private CheckBox GetCurrentEnabledControl(TabPage tabPage)
-        {
-            return GetTabEnabledControl(Tabs_Clicks.SelectedTab);
-        }
-
-        private CheckBox GetCurrentRightClickControl(TabPage tabPage)
-        {
-            return GetTabRightClickControl(Tabs_Clicks.SelectedTab);
-        }
-
-
-        private (NumericUpDown, NumericUpDown) GetTabCoordinatesControls(TabPage tabPage)
-        {
-            NumericUpDown x = tabPage.Controls[NUD_X] as NumericUpDown;
-            NumericUpDown y = tabPage.Controls[NUD_Y] as NumericUpDown;
-
-            return (x, y);
-        }
-
-        private NumericUpDown GetTabClicksCountControl(TabPage tabPage)
-        {
-            NumericUpDown result = tabPage.Controls[NUD_CLICKS_COUNT] as NumericUpDown;
-
-            return result;
-        }
-
-        private NumericUpDown GetTabDelayControl(TabPage tabPage)
-        {
-            NumericUpDown result = tabPage.Controls[NUD_DELAY_BEFORE] as NumericUpDown;
-
-            return result;
-        }
-
-        private CheckBox GetTabEnabledControl(TabPage tabPage)
-        {
-            CheckBox result = tabPage.Controls[CB_Enabled] as CheckBox;
-
-            return result;
-        }
-
-        private CheckBox GetTabRightClickControl(TabPage tabPage)
-        {
-            CheckBox result = tabPage.Controls[CB_Right] as CheckBox;
-
-            return result;
+            get
+            {
+                switch (controlType)
+                {
+                    case ControlType.CoordinateX:
+                        return tabPage.Controls[NUD_X];
+                    case ControlType.CoordinateY:
+                        return tabPage.Controls[NUD_Y];
+                    case ControlType.ClicksCount:
+                        return tabPage.Controls[NUD_CLICKS_COUNT];
+                    case ControlType.Delay:
+                        return tabPage.Controls[NUD_DELAY_BEFORE];
+                    case ControlType.Enabled:
+                        return tabPage.Controls[CB_Enabled];
+                    case ControlType.RightClick:
+                        return tabPage.Controls[CB_Right];
+                    default:
+                        return null;
+                }
+            }
         }
         #endregion
 
@@ -641,11 +588,12 @@ namespace NWN_ModuleRunner.Forms
                 bool result = true;
                 foreach (TabPage item in Tabs_Clicks.TabPages)
                 {
-                    (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(item);
+                    NumericUpDown nudX = this[ControlType.CoordinateX] as NumericUpDown;
+                    NumericUpDown nudY = this[ControlType.CoordinateY] as NumericUpDown;
 
                     result = result
-                        && NUDs.Item1.Value >= 0 && NUDs.Item1.Value <= w
-                        && NUDs.Item2.Value >= 0 && NUDs.Item2.Value <= h;
+                        && nudX.Value >= 0 && nudX.Value <= w
+                        && nudY.Value >= 0 && nudY.Value <= h;
                 }
 
                 return result;
@@ -708,8 +656,10 @@ namespace NWN_ModuleRunner.Forms
         {
             if (sender is NumericUpDown nud && nud.Parent is TabPage tabPage)
             {
-                (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
-                ChangePoint(GetCurrentClickObj(), (int)NUDs.Item1.Value, (int)NUDs.Item2.Value);
+                NumericUpDown nudX = this[ControlType.CoordinateX] as NumericUpDown;
+                NumericUpDown nudY = this[ControlType.CoordinateY] as NumericUpDown;
+
+                ChangePoint(GetCurrentClickObj(), (int)nudX.Value, (int)nudY.Value);
             }
         }
 
@@ -823,6 +773,27 @@ namespace NWN_ModuleRunner.Forms
                 }
             }
         }
+
+        private void Btn_Debug_Click(object sender, EventArgs e)
+        {
+            //var s = (Tabs_Clicks.TabPages[0].Controls[NUD_X] as NumericUpDown);
+
+            //s.V
+
+            //MessageBox.Show(s.ToString());
+
+            (this[Tabs_Clicks.TabPages[1], ControlType.CoordinateX] as NumericUpDown).Value += 10;
+        }
         #endregion
+    }
+
+    internal enum ControlType
+    {
+        CoordinateX,
+        CoordinateY,
+        ClicksCount,
+        Delay,
+        Enabled,
+        RightClick,
     }
 }

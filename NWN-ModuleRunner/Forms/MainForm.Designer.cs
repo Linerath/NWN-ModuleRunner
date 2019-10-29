@@ -44,6 +44,7 @@
             this.Lbl_Template = new System.Windows.Forms.Label();
             this.Btn_RemoveTemplate = new System.Windows.Forms.Button();
             this.Btn_AddTemplate = new System.Windows.Forms.Button();
+            this.Btn_Debug = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -224,11 +225,24 @@
             this.Btn_AddTemplate.UseVisualStyleBackColor = true;
             this.Btn_AddTemplate.Click += new System.EventHandler(this.Btn_AddTemplate_Click);
             // 
+            // Btn_Debug
+            // 
+            this.Btn_Debug.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_Debug.Location = new System.Drawing.Point(323, 6);
+            this.Btn_Debug.Name = "Btn_Debug";
+            this.Btn_Debug.Size = new System.Drawing.Size(63, 25);
+            this.Btn_Debug.TabIndex = 25;
+            this.Btn_Debug.Text = "Debug";
+            this.Btn_Debug.UseVisualStyleBackColor = true;
+            this.Btn_Debug.Visible = false;
+            this.Btn_Debug.Click += new System.EventHandler(this.Btn_Debug_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(402, 373);
+            this.Controls.Add(this.Btn_Debug);
             this.Controls.Add(this.Btn_AddTemplate);
             this.Controls.Add(this.Btn_RemoveTemplate);
             this.Controls.Add(this.groupBox2);
@@ -268,6 +282,7 @@
         private System.Windows.Forms.Label Lbl_Template;
         private System.Windows.Forms.Button Btn_RemoveTemplate;
         private System.Windows.Forms.Button Btn_AddTemplate;
+        private System.Windows.Forms.Button Btn_Debug;
     }
 }
 
