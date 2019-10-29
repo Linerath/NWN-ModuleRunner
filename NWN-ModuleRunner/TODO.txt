@@ -1,0 +1,17 @@
+TODO:
+ click test
+ break clicking
+ process starting
+ "save as"
+ hot keys for templates
+ keys combinations
+ template rename
+ smooth mouse movement
+ keyboad button clicking
+ menu
+ attractive UI
+ saving mouse movement (real-time)
+ 
+DONE:
+ templates 28.10.19
+ revert button 29.10.19
