@@ -65,6 +65,11 @@ namespace NWN_ModuleRunner.Services
             }
         }
 
+        public void Reset()
+        {
+            parameters = prevParameters.Clone() as Parameters;
+        }
+
         #region Template manipulations
         public Template FindTemplate(String name)
         {

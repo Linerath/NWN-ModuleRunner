@@ -740,6 +740,16 @@ namespace NWN_ModuleRunner.Forms
             }
         }
 
+        private void Btn_Revert_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Are you sure?", "Revert", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                service.Reset();
+                selectedTemplate = service.Templates.FirstOrDefault();
+                SyncUIParams();
+            }
+        }
+
         private void Tabs_Clicks_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 'q')

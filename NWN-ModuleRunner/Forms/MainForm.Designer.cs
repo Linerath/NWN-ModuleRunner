@@ -40,6 +40,7 @@
             this.Lbl_Hint2 = new System.Windows.Forms.Label();
             this.Btn_Clear = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.Btn_Revert = new System.Windows.Forms.Button();
             this.CB_Template = new System.Windows.Forms.ComboBox();
             this.Lbl_Template = new System.Windows.Forms.Label();
             this.Btn_RemoveTemplate = new System.Windows.Forms.Button();
@@ -168,6 +169,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.Btn_Revert);
             this.groupBox2.Controls.Add(this.Tabs_Clicks);
             this.groupBox2.Controls.Add(this.Btn_Start);
             this.groupBox2.Controls.Add(this.Btn_AddClick);
@@ -180,6 +182,17 @@
             this.groupBox2.Size = new System.Drawing.Size(374, 250);
             this.groupBox2.TabIndex = 22;
             this.groupBox2.TabStop = false;
+            // 
+            // Btn_Revert
+            // 
+            this.Btn_Revert.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_Revert.Location = new System.Drawing.Point(311, 215);
+            this.Btn_Revert.Name = "Btn_Revert";
+            this.Btn_Revert.Size = new System.Drawing.Size(56, 25);
+            this.Btn_Revert.TabIndex = 8;
+            this.Btn_Revert.Text = "Revert";
+            this.Btn_Revert.UseVisualStyleBackColor = true;
+            this.Btn_Revert.Click += new System.EventHandler(this.Btn_Revert_Click);
             // 
             // CB_Template
             // 
@@ -283,6 +296,7 @@
         private System.Windows.Forms.Button Btn_RemoveTemplate;
         private System.Windows.Forms.Button Btn_AddTemplate;
         private System.Windows.Forms.Button Btn_Debug;
+        private System.Windows.Forms.Button Btn_Revert;
     }
 }
 
