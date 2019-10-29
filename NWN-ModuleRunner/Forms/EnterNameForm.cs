@@ -18,36 +18,46 @@ namespace NWN_ModuleRunner.Forms
 
         private void Ok()
         {
-            if (String.IsNullOrWhiteSpace(TB_Name.Text))
-            {
-                MessageBox.Show("Please enter name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                return;
-            }
+            DialogResult = DialogResult.OK;
 
-            var result = ok(TB_Name.Text);
-
-            if (!result.Success)
-            {
-                if (!String.IsNullOrWhiteSpace(result.Message))
-                    MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-            }
-            else
-            {
-                Close();
-            }
         }
 
         private void TB_Name_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 13)
             {
-                Ok();
+                DialogResult = DialogResult.OK;
             }
         }
 
         private void Btn_Ok_Click(object sender, EventArgs e)
         {
-            Ok();
+            DialogResult = DialogResult.OK;
+        }
+
+        private void EnterNameForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (DialogResult == DialogResult.OK)
+            {
+                if (String.IsNullOrWhiteSpace(TB_Name.Text))
+                {
+                    MessageBox.Show("Please enter name.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                    e.Cancel = true;
+                }
+                else
+                {
+                    var result = ok(TB_Name.Text);
+
+                    if (!result.Success)
+                    {
+                        if (!String.IsNullOrWhiteSpace(result.Message))
+                        {
+                            MessageBox.Show(result.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                            e.Cancel = true;
+                        }
+                    }
+                }
+            }
         }
     }
 }

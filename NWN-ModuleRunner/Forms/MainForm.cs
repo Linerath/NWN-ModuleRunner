@@ -22,7 +22,6 @@ namespace NWN_ModuleRunner.Forms
         private PInvokeHelper.HookProc keyboardLLDelegate = null;
 
         private bool bgMode = false;
-        private bool exit = false;
 
         private const String NUD_X = "NUD_X";
         private const String NUD_Y = "NUD_Y";
@@ -646,7 +645,7 @@ namespace NWN_ModuleRunner.Forms
         private void Btn_AddTemplate_Click(object sender, EventArgs e)
         {
             EnterNameForm nameForm = new EnterNameForm(TryAddTemplate, "Template name");
-            nameForm.Show(this);
+            nameForm.ShowDialog(this);
         }
 
         private void Btn_RemoveTemplate_Click(object sender, EventArgs e)
@@ -753,7 +752,7 @@ namespace NWN_ModuleRunner.Forms
         {
             if (service.ShowFinalDialog)
             {
-                if (!exit && service.AreParametersChanged)
+                if (service.AreParametersChanged)
                 {
                     foreach (var hookId in hookIds)
                     {
@@ -762,13 +761,8 @@ namespace NWN_ModuleRunner.Forms
                     }
 
                     ExitForm exitForm = new ExitForm(service);
-                    exitForm.Show(this);
-                    exit = true;
-                    exitForm.FormClosed += delegate (object obj, FormClosedEventArgs agrs)
-                    {
-                        Application.Exit();
-                    };
-                    e.Cancel = true;
+                    DialogResult result = exitForm.ShowDialog(this);
+                    e.Cancel = result == DialogResult.Cancel;
                 }
             }
             else
@@ -789,7 +783,9 @@ namespace NWN_ModuleRunner.Forms
 
             //MessageBox.Show(s.ToString());
 
-            (this[Tabs_Clicks.TabPages[1], ControlType.CoordinateX] as NumericUpDown).Value += 10;
+            //(this[Tabs_Clicks.TabPages[1], ControlType.CoordinateX] as NumericUpDown).Value += 10;
+
+            PInvokeHelper.mouse_event(MouseEvents.MOUSEEVENTF_MOVE | MouseEvents.MOUSEEVENTF_ABSOLUTE, 100, 100, 0, IntPtr.Zero);
         }
         #endregion
     }

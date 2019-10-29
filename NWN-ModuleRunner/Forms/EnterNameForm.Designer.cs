@@ -72,12 +72,14 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.TB_Name);
             this.Controls.Add(this.Btn_Ok);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "EnterNameForm";
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Enter name";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.EnterNameForm_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

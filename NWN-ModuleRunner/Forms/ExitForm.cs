@@ -25,6 +25,7 @@ namespace NWN_ModuleRunner.Forms
             if (!service.TryWriteParameters())
                 MessageBox.Show(SAVE_ERROR, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
+            DialogResult = DialogResult.OK;
             Close();
         }
 
@@ -40,6 +41,7 @@ namespace NWN_ModuleRunner.Forms
                 newService.TryWriteParameters();
             }
 
+            DialogResult = DialogResult.OK;
             Close();
         }
     }

@@ -1,1 +1,1 @@
-{"Templates":[{"Clicks":[{"Point":"0, 0","Count":1,"DelayBefore":100,"Enabled":true,"Right":false}],"Name":"Test"}],"SaveParameters":true,"ShowFinalDialog":true}
+{"Templates":[{"Clicks":[{"Point":"1, 1","Count":1,"DelayBefore":2,"Enabled":true,"Right":true}],"Name":"Test"}],"SaveParameters":true,"ShowFinalDialog":true}
