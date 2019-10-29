@@ -29,6 +29,7 @@ namespace NWN_ModuleRunner.Forms
         private const String NUD_CLICKS_COUNT = "NUD_CLICKS_COUNT";
         private const String NUD_DELAY_BEFORE = "NUD_DELAY_BEFORE";
         private const String CB_Enabled = "CB_Enabled";
+        private const String CB_Right = "CB_Right";
 
         private const String ERROR = "Critical error has occured. Open log file for details.";
         private const String SAVE_ERROR = "Error has occured while saving parameters. Open log file for details.";
@@ -65,7 +66,7 @@ namespace NWN_ModuleRunner.Forms
                         Thread.Sleep(click.DelayBefore);
                     for (int i = 0; i < click.Count; i++)
                     {
-                        PerformClick(click.Point.X, click.Point.Y);
+                        PerformClick(click.Point.X, click.Point.Y, click.Right);
                     }
                 }
             }
@@ -196,8 +197,19 @@ namespace NWN_ModuleRunner.Forms
                             Name = CB_Enabled,
                             Checked = click.Enabled,
                             Font = new Font("Segoe UI", 9),
-                            Size = new Size(68, 17),
+                            AutoSize = true,
                             Location = new Point(3, 113),
+                        };
+
+                        // Right
+                        CheckBox right = new CheckBox()
+                        {
+                            Text = "Right click",
+                            Name = CB_Right,
+                            Checked = click.Right,
+                            Font = new Font("Segoe UI", 9),
+                            AutoSize = true,
+                            Location = new Point(71, 113),
                         };
 
                         // Clone button
@@ -219,6 +231,7 @@ namespace NWN_ModuleRunner.Forms
                         Tabs_Clicks.TabPages[i].Controls.Add(delay);
                         Tabs_Clicks.TabPages[i].Controls.Add(nud_delay);
                         Tabs_Clicks.TabPages[i].Controls.Add(enabled);
+                        Tabs_Clicks.TabPages[i].Controls.Add(right);
                         Tabs_Clicks.TabPages[i].Controls.Add(clone);
                     }
                 }
@@ -229,7 +242,8 @@ namespace NWN_ModuleRunner.Forms
                         (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(tabPage);
                         NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
                         NumericUpDown nudDelay = GetTabDelayControl(tabPage);
-                        CheckBox cb = GetCurrentEnabledControl(tabPage);
+                        CheckBox cbEnabled = GetCurrentEnabledControl(tabPage);
+                        CheckBox cbRight = GetCurrentRightClickControl(tabPage);
 
                         Click click = GetCurrentClickObj();
 
@@ -237,7 +251,8 @@ namespace NWN_ModuleRunner.Forms
                         NUDs.Item2.Value = click.Point.Y;
                         nudCount.Value = click.Count;
                         nudDelay.Value = click.DelayBefore;
-                        cb.Checked = click.Enabled;
+                        cbEnabled.Checked = click.Enabled;
+                        cbRight.Checked = click.Right;
                     }
                 }
             }
@@ -259,7 +274,8 @@ namespace NWN_ModuleRunner.Forms
                 (NumericUpDown, NumericUpDown) NUDs = GetTabCoordinatesControls(Tabs_Clicks.SelectedTab);
                 NumericUpDown nudCount = GetTabClicksCountControl(Tabs_Clicks.SelectedTab);
                 NumericUpDown nudDelay = GetTabDelayControl(Tabs_Clicks.SelectedTab);
-                CheckBox cb = GetCurrentEnabledControl(Tabs_Clicks.SelectedTab);
+                CheckBox cbEnabled = GetCurrentEnabledControl(Tabs_Clicks.SelectedTab);
+                CheckBox cbRight = GetCurrentRightClickControl(Tabs_Clicks.SelectedTab);
 
                 Click click = GetCurrentClickObj();
 
@@ -267,8 +283,8 @@ namespace NWN_ModuleRunner.Forms
                 NUDs.Item2.Value = click.Point.Y;
                 nudCount.Value = click.Count;
                 nudDelay.Value = click.DelayBefore;
-                cb.Checked = click.Enabled;
-
+                cbEnabled.Checked = click.Enabled;
+                cbRight.Checked = click.Right;
             }
 
             Btn_RemoveClick.Enabled = selectedTemplate.Clicks.Count > 1;
@@ -295,7 +311,7 @@ namespace NWN_ModuleRunner.Forms
 
                     if (keyPressed == Keys.F9)
                     {
-                        ChangeCurrentClickCursorPoint();
+                        ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
                     }
                     #endregion
                 }
@@ -318,7 +334,7 @@ namespace NWN_ModuleRunner.Forms
                     }
                     else if (keyPressed == Keys.F9)
                     {
-                        ChangeCurrentClickCursorPoint();
+                        ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
                     }
                     else if (keyPressed == Keys.F12)
                     {
@@ -345,6 +361,7 @@ namespace NWN_ModuleRunner.Forms
             NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
             NumericUpDown nudDelay = GetTabDelayControl(tabPage);
             CheckBox cbEnabled = GetTabEnabledControl(tabPage);
+            CheckBox cbRight = GetTabRightClickControl(tabPage);
 
             if (NUDs.Item1 != null)
                 NUDs.Item1.ValueChanged += Coordinates_ValueChanged;
@@ -356,6 +373,8 @@ namespace NWN_ModuleRunner.Forms
                 nudDelay.ValueChanged += DelayBefore_ValueChanged;
             if (cbEnabled != null)
                 cbEnabled.CheckedChanged += Enabled_CheckedChanged;
+            if (cbRight != null)
+                cbRight.CheckedChanged += Right_CheckedChanged;
         }
 
         private void BindingOff()
@@ -373,6 +392,7 @@ namespace NWN_ModuleRunner.Forms
             NumericUpDown nudCount = GetTabClicksCountControl(tabPage);
             NumericUpDown nudDelay = GetTabDelayControl(tabPage);
             CheckBox cbEnabled = GetTabEnabledControl(tabPage);
+            CheckBox cbRight = GetTabRightClickControl(tabPage);
 
             if (NUDs.Item1 != null)
                 NUDs.Item1.ValueChanged -= Coordinates_ValueChanged;
@@ -384,6 +404,8 @@ namespace NWN_ModuleRunner.Forms
                 nudDelay.ValueChanged -= DelayBefore_ValueChanged;
             if (cbEnabled != null)
                 cbEnabled.CheckedChanged -= Enabled_CheckedChanged;
+            if (cbRight != null)
+                cbRight.CheckedChanged -= Right_CheckedChanged;
         }
 
         private void SelectNextTab(bool forward = true)
@@ -503,7 +525,7 @@ namespace NWN_ModuleRunner.Forms
             return tabPage.ClickObj;
         }
 
-        private void ChangeCurrentClickCursorPoint()
+        private void ChangeCurrentClickCursorPoint(int x, int y)
         {
             Click click = GetCurrentClickObj();
             if (click == null)
@@ -520,7 +542,7 @@ namespace NWN_ModuleRunner.Forms
                 return;
             }
 
-            service.ChangeClickPoint(selectedTemplate, click, new Point(Cursor.Position.X, Cursor.Position.Y));
+            service.ChangeClickPoint(selectedTemplate, click, new Point(x, y));
             SyncCurrentClick();
         }
 
@@ -557,6 +579,11 @@ namespace NWN_ModuleRunner.Forms
             return GetTabEnabledControl(Tabs_Clicks.SelectedTab);
         }
 
+        private CheckBox GetCurrentRightClickControl(TabPage tabPage)
+        {
+            return GetTabRightClickControl(Tabs_Clicks.SelectedTab);
+        }
+
 
         private (NumericUpDown, NumericUpDown) GetTabCoordinatesControls(TabPage tabPage)
         {
@@ -583,6 +610,13 @@ namespace NWN_ModuleRunner.Forms
         private CheckBox GetTabEnabledControl(TabPage tabPage)
         {
             CheckBox result = tabPage.Controls[CB_Enabled] as CheckBox;
+
+            return result;
+        }
+
+        private CheckBox GetTabRightClickControl(TabPage tabPage)
+        {
+            CheckBox result = tabPage.Controls[CB_Right] as CheckBox;
 
             return result;
         }
@@ -628,16 +662,19 @@ namespace NWN_ModuleRunner.Forms
         #endregion
 
         #region Mouse
-        private void PerformClick()
+        private void PerformClick(bool right = false)
         {
-            PInvokeHelper.mouse_event(0x0002 | 0x0004, 0, 0, 0, IntPtr.Zero);
+            if (!right)
+                PInvokeHelper.mouse_event(MouseEvents.MOUSEEVENTF_LEFTDOWN | MouseEvents.MOUSEEVENTF_LEFTUP, 0, 0, 0, IntPtr.Zero);
+            else
+                PInvokeHelper.mouse_event(MouseEvents.MOUSEEVENTF_RIGHTDOWN | MouseEvents.MOUSEEVENTF_RIGHTUP, 0, 0, 0, IntPtr.Zero);
         }
 
-        private void PerformClick(int x, int y)
+        private void PerformClick(int x, int y, bool right = false)
         {
             Cursor.Position = new Point(x, y);
 
-            PerformClick();
+            PerformClick(right);
         }
         #endregion
 
@@ -697,6 +734,14 @@ namespace NWN_ModuleRunner.Forms
             if (sender is CheckBox cb)
             {
                 GetCurrentClickObj().Enabled = cb.Checked;
+            }
+        }
+
+        private void Right_CheckedChanged(object sender, EventArgs e)
+        {
+            if (sender is CheckBox cb)
+            {
+                GetCurrentClickObj().Right = cb.Checked;
             }
         }
 

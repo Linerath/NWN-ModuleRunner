@@ -449,6 +449,7 @@ namespace NWN_ModuleRunner.Services
         public int Count { get; set; } = 1;
         public int DelayBefore { get; set; } = 100;
         public bool Enabled { get; set; } = true;
+        public bool Right { get; set; }
 
 
         public bool Equals(Click click)
@@ -462,7 +463,9 @@ namespace NWN_ModuleRunner.Services
             return Point == click.Point
                 && Count == click.Count
                 && DelayBefore == click.DelayBefore
-                && Enabled == click.Enabled;
+                && Enabled == click.Enabled
+                && Right == click.Right
+                ;
         }
 
         public override bool Equals(object obj)
@@ -484,6 +487,7 @@ namespace NWN_ModuleRunner.Services
                 Count = Count,
                 DelayBefore = DelayBefore,
                 Enabled = Enabled,
+                Right = Right,
             };
         }
     }
