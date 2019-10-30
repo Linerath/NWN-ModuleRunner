@@ -11,6 +11,7 @@ TODO:
  menu
  attractive UI
  saving mouse movement (real-time)
+ logging
  
 DONE:
  templates 28.10.19

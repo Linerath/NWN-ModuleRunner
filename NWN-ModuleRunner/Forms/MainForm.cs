@@ -73,6 +73,11 @@ namespace NWN_ModuleRunner.Forms
                 Error("One or more parameter is invalid.");
         }
 
+        private void TestClick(Click click)
+        {
+            Cursor.Position = new Point(click.Point.X, click.Point.Y);
+        }
+
         private void SyncScreenParams()
         {
             // Screens.
@@ -221,6 +226,16 @@ namespace NWN_ModuleRunner.Forms
                         };
                         clone.Click += Btn_Clone_Click;
 
+                        // Test button
+                        Button test = new Button()
+                        {
+                            Text = "test",
+                            Font = new Font("Segoe UI", 8),
+                            Size = new Size(40, 23),
+                            Location = new Point(254, 107),
+                        };
+                        test.Click += Btn_Test_Click;
+
                         Tabs_Clicks.TabPages[i].Controls.Add(x);
                         Tabs_Clicks.TabPages[i].Controls.Add(nud_x);
                         Tabs_Clicks.TabPages[i].Controls.Add(y);
@@ -232,6 +247,7 @@ namespace NWN_ModuleRunner.Forms
                         Tabs_Clicks.TabPages[i].Controls.Add(enabled);
                         Tabs_Clicks.TabPages[i].Controls.Add(right);
                         Tabs_Clicks.TabPages[i].Controls.Add(clone);
+                        Tabs_Clicks.TabPages[i].Controls.Add(test);
                     }
                 }
                 else
@@ -704,6 +720,11 @@ namespace NWN_ModuleRunner.Forms
         private void Btn_Clone_Click(object sender, EventArgs e)
         {
             CloneClick();
+        }
+
+        private void Btn_Test_Click(object sender, EventArgs e)
+        {
+            TestClick(GetCurrentClickObj());
         }
 
         private void Btn_AddClick_Click(object sender, EventArgs e)
