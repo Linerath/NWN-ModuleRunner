@@ -1,6 +1,4 @@
 TODO:
- click test
- break clicking
  process starting
  "save as"
  hot keys for templates
@@ -12,7 +10,10 @@ TODO:
  attractive UI
  saving mouse movement (real-time)
  logging
+ default delay
  
 DONE:
  templates 28.10.19
  revert button 29.10.19
+ click test 30.10.19
+ break clicking 01.11.19

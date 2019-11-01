@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace NWN_ModuleRunner.Forms
@@ -21,6 +22,8 @@ namespace NWN_ModuleRunner.Forms
         private PInvokeHelper.HookProc keyboardDelegate = null;
         private PInvokeHelper.HookProc keyboardLLDelegate = null;
 
+        private bool performs = false;
+        private bool stop = false;
         private bool bgMode = false;
 
         private const String NUD_X = "NUD_X";
@@ -58,6 +61,12 @@ namespace NWN_ModuleRunner.Forms
             {
                 foreach (var click in selectedTemplate.Clicks)
                 {
+                    if (stop)
+                    {
+                        stop = false;
+                        return;
+                    }
+
                     if (!click.Enabled)
                         continue;
 
@@ -65,12 +74,22 @@ namespace NWN_ModuleRunner.Forms
                         Thread.Sleep(click.DelayBefore);
                     for (int i = 0; i < click.Count; i++)
                     {
+                        if (stop)
+                        {
+                            stop = false;
+                            return;
+                        }
                         PerformClick(click.Point.X, click.Point.Y, click.Right);
                     }
                 }
             }
             else
                 Error("One or more parameter is invalid.");
+        }
+
+        private void Stop()
+        {
+            stop = true;
         }
 
         private void TestClick(Click click)
@@ -312,9 +331,19 @@ namespace NWN_ModuleRunner.Forms
                     #region K
                     Keys keyPressed = (Keys)wParam.ToInt32();
 
-                    if (keyPressed == Keys.F9)
+                    if (performs)
                     {
-                        ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
+                        if (keyPressed == Keys.F6)
+                        {
+                            Stop();
+                        }
+                    }
+                    else
+                    {
+                        if (keyPressed == Keys.F9)
+                        {
+                            ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
+                        }
                     }
                     #endregion
                 }
@@ -325,23 +354,33 @@ namespace NWN_ModuleRunner.Forms
 
         private int KeyboardProcLL(int code, IntPtr wParam, IntPtr lParam)
         {
-            if (bgMode)
+            if (performs || bgMode)
             {
                 if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
                 {
                     Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
 
-                    if (keyPressed == Keys.F5)
+                    if (performs)
                     {
-                        Start();
+                        if (keyPressed == Keys.F6)
+                        {
+                            Stop();
+                        }
                     }
-                    else if (keyPressed == Keys.F9)
+                    else if (bgMode)
                     {
-                        ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
-                    }
-                    else if (keyPressed == Keys.F12)
-                    {
-                        AddClick();
+                        if (keyPressed == Keys.F5)
+                        {
+                            Btn_Start_Click(null, null);
+                        }
+                        else if (keyPressed == Keys.F9)
+                        {
+                            ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
+                        }
+                        else if (keyPressed == Keys.F12)
+                        {
+                            AddClick();
+                        }
                     }
                 }
             }
@@ -669,9 +708,27 @@ namespace NWN_ModuleRunner.Forms
             RemoveCurrentTemplate();
         }
 
-        private void Btn_Start_Click(object sender, EventArgs e)
+        private async void Btn_Start_Click(object sender, EventArgs e)
         {
-            Start();
+            performs = true;
+            Lbl_Hint0.Visible = false;
+            Lbl_Hint1.Visible = true;
+            String oldText = Lbl_Hint1.Text;
+            Lbl_Hint1.Text = "Press \"F6\" to stop performing";
+            Lbl_Hint2.Visible = false;
+            Enabled = false;
+
+            await Task.Run(() =>
+            {
+                Start();
+            });
+
+            Enabled = true;
+            Lbl_Hint0.Visible = bgMode;
+            Lbl_Hint1.Visible = bgMode;
+            Lbl_Hint1.Text = oldText;
+            Lbl_Hint2.Visible = true;
+            performs = false;
         }
 
         private void Coordinates_ValueChanged(object sender, EventArgs e)
