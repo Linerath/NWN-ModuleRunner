@@ -340,6 +340,22 @@ namespace NWN_ModuleRunner.Forms
                     }
                     else
                     {
+                        if (keyPressed == Keys.F1)
+                        {
+                            TrySelectTemplate(0);
+                        }
+                        else if (keyPressed == Keys.F2)
+                        {
+                            TrySelectTemplate(1);
+                        }
+                        else if (keyPressed == Keys.F3)
+                        {
+                            TrySelectTemplate(2);
+                        }
+                        else if (keyPressed == Keys.F4)
+                        {
+                            TrySelectTemplate(3);
+                        }
                         if (keyPressed == Keys.F9)
                         {
                             ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
@@ -369,7 +385,23 @@ namespace NWN_ModuleRunner.Forms
                     }
                     else if (bgMode)
                     {
-                        if (keyPressed == Keys.F5)
+                        if (keyPressed == Keys.F1)
+                        {
+                            TrySelectTemplate(0);
+                        }
+                        else if (keyPressed == Keys.F2)
+                        {
+                            TrySelectTemplate(1);
+                        }
+                        else if (keyPressed == Keys.F3)
+                        {
+                            TrySelectTemplate(2);
+                        }
+                        else if (keyPressed == Keys.F4)
+                        {
+                            TrySelectTemplate(3);
+                        }
+                        else if (keyPressed == Keys.F5)
                         {
                             Btn_Start_Click(null, null);
                         }
@@ -436,6 +468,22 @@ namespace NWN_ModuleRunner.Forms
                 cbEnabled.CheckedChanged -= Enabled_CheckedChanged;
             if (this[tabPage, ControlType.RightClick] is CheckBox cbRight)
                 cbRight.CheckedChanged -= Right_CheckedChanged;
+        }
+
+        private void TrySelectTemplate(int index)
+        {
+            if (index < 0 || index >= service.Templates.Count)
+                return;
+
+            selectedTemplate = GetTemplate(index);
+
+            if (selectedTemplate == null)
+            {
+                Error(ERROR);
+                return;
+            }
+
+            SyncUIParams();
         }
 
         private void SelectNextTab(bool forward = true)
@@ -689,12 +737,7 @@ namespace NWN_ModuleRunner.Forms
         #region Events
         private void CB_Template_SelectedIndexChanged(object sender, EventArgs e)
         {
-            selectedTemplate = GetTemplate(CB_Template.SelectedIndex);
-
-            if (selectedTemplate != null)
-            {
-                SyncUIParams();
-            }
+            TrySelectTemplate(CB_Template.SelectedIndex);
         }
 
         private void Btn_AddTemplate_Click(object sender, EventArgs e)
