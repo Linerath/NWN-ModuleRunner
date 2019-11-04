@@ -1,5 +1,4 @@
 TODO:
- process starting
  "save as"
  hot keys for templates
  keys combinations
@@ -11,9 +10,13 @@ TODO:
  saving mouse movement (real-time)
  logging
  default delay
+ click name
+ process (any file/explorer/http)
+ process kills
  
 DONE:
  templates 28.10.19
  revert button 29.10.19
  click test 30.10.19
  break clicking 01.11.19
+ process (application) 04.11.19

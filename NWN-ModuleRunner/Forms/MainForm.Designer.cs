@@ -46,6 +46,9 @@
             this.Btn_RemoveTemplate = new System.Windows.Forms.Button();
             this.Btn_AddTemplate = new System.Windows.Forms.Button();
             this.Btn_Debug = new System.Windows.Forms.Button();
+            this.Btn_SelectChangeApp = new System.Windows.Forms.Button();
+            this.Lbl_AppPath = new System.Windows.Forms.Label();
+            this.Lbl_RemoveApp = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -115,10 +118,12 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.Controls.Add(this.Lbl_Hint1);
             this.groupBox1.Controls.Add(this.Lbl_Hint0);
             this.groupBox1.Controls.Add(this.Lbl_Hint2);
-            this.groupBox1.Location = new System.Drawing.Point(12, 285);
+            this.groupBox1.Location = new System.Drawing.Point(12, 310);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(374, 80);
             this.groupBox1.TabIndex = 18;
@@ -169,6 +174,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.Controls.Add(this.Btn_Revert);
             this.groupBox2.Controls.Add(this.Tabs_Clicks);
             this.groupBox2.Controls.Add(this.Btn_Start);
@@ -177,7 +184,7 @@
             this.groupBox2.Controls.Add(this.Btn_RemoveClick);
             this.groupBox2.Controls.Add(this.Btn_BGMode);
             this.groupBox2.Controls.Add(this.Btn_Save);
-            this.groupBox2.Location = new System.Drawing.Point(12, 37);
+            this.groupBox2.Location = new System.Drawing.Point(12, 62);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(374, 250);
             this.groupBox2.TabIndex = 22;
@@ -221,7 +228,7 @@
             this.Btn_RemoveTemplate.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Btn_RemoveTemplate.Location = new System.Drawing.Point(202, 6);
             this.Btn_RemoveTemplate.Name = "Btn_RemoveTemplate";
-            this.Btn_RemoveTemplate.Size = new System.Drawing.Size(30, 25);
+            this.Btn_RemoveTemplate.Size = new System.Drawing.Size(25, 25);
             this.Btn_RemoveTemplate.TabIndex = 23;
             this.Btn_RemoveTemplate.Text = "-";
             this.Btn_RemoveTemplate.UseVisualStyleBackColor = true;
@@ -230,9 +237,9 @@
             // Btn_AddTemplate
             // 
             this.Btn_AddTemplate.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.Btn_AddTemplate.Location = new System.Drawing.Point(238, 6);
+            this.Btn_AddTemplate.Location = new System.Drawing.Point(233, 6);
             this.Btn_AddTemplate.Name = "Btn_AddTemplate";
-            this.Btn_AddTemplate.Size = new System.Drawing.Size(30, 25);
+            this.Btn_AddTemplate.Size = new System.Drawing.Size(25, 25);
             this.Btn_AddTemplate.TabIndex = 24;
             this.Btn_AddTemplate.Text = "+";
             this.Btn_AddTemplate.UseVisualStyleBackColor = true;
@@ -250,11 +257,46 @@
             this.Btn_Debug.Visible = false;
             this.Btn_Debug.Click += new System.EventHandler(this.Btn_Debug_Click);
             // 
+            // Btn_SelectChangeApp
+            // 
+            this.Btn_SelectChangeApp.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_SelectChangeApp.Location = new System.Drawing.Point(12, 37);
+            this.Btn_SelectChangeApp.Name = "Btn_SelectChangeApp";
+            this.Btn_SelectChangeApp.Size = new System.Drawing.Size(84, 25);
+            this.Btn_SelectChangeApp.TabIndex = 26;
+            this.Btn_SelectChangeApp.Text = "Select app";
+            this.Btn_SelectChangeApp.UseVisualStyleBackColor = true;
+            this.Btn_SelectChangeApp.Click += new System.EventHandler(this.Btn_SelectChangeApp_Click);
+            // 
+            // Lbl_AppPath
+            // 
+            this.Lbl_AppPath.AutoSize = true;
+            this.Lbl_AppPath.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Lbl_AppPath.Location = new System.Drawing.Point(114, 44);
+            this.Lbl_AppPath.Name = "Lbl_AppPath";
+            this.Lbl_AppPath.Size = new System.Drawing.Size(25, 13);
+            this.Lbl_AppPath.TabIndex = 21;
+            this.Lbl_AppPath.Text = "abc";
+            // 
+            // Lbl_RemoveApp
+            // 
+            this.Lbl_RemoveApp.AutoSize = true;
+            this.Lbl_RemoveApp.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Lbl_RemoveApp.Location = new System.Drawing.Point(97, 41);
+            this.Lbl_RemoveApp.Name = "Lbl_RemoveApp";
+            this.Lbl_RemoveApp.Size = new System.Drawing.Size(16, 17);
+            this.Lbl_RemoveApp.TabIndex = 27;
+            this.Lbl_RemoveApp.Text = "X";
+            this.Lbl_RemoveApp.Click += new System.EventHandler(this.Lbl_RemoveApp_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(402, 373);
+            this.ClientSize = new System.Drawing.Size(402, 398);
+            this.Controls.Add(this.Lbl_RemoveApp);
+            this.Controls.Add(this.Lbl_AppPath);
+            this.Controls.Add(this.Btn_SelectChangeApp);
             this.Controls.Add(this.Btn_Debug);
             this.Controls.Add(this.Btn_AddTemplate);
             this.Controls.Add(this.Btn_RemoveTemplate);
@@ -297,6 +339,9 @@
         private System.Windows.Forms.Button Btn_AddTemplate;
         private System.Windows.Forms.Button Btn_Debug;
         private System.Windows.Forms.Button Btn_Revert;
+        private System.Windows.Forms.Button Btn_SelectChangeApp;
+        private System.Windows.Forms.Label Lbl_AppPath;
+        private System.Windows.Forms.Label Lbl_RemoveApp;
     }
 }
 

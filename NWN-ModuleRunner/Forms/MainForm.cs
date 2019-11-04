@@ -2,6 +2,7 @@
 using NWN_ModuleRunner.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -59,6 +60,9 @@ namespace NWN_ModuleRunner.Forms
         {
             if (AreParametersValid)
             {
+                if (!String.IsNullOrWhiteSpace(selectedTemplate.AppPath))
+                    Process.Start(selectedTemplate.AppPath);
+
                 foreach (var click in selectedTemplate.Clicks)
                 {
                     if (stop)
@@ -285,6 +289,7 @@ namespace NWN_ModuleRunner.Forms
                 }
             }
 
+            SyncStartApp();
             SyncBGMode();
 
             Btn_RemoveTemplate.Enabled = service.Templates.Count > 1;
@@ -312,6 +317,16 @@ namespace NWN_ModuleRunner.Forms
             Btn_RemoveClick.Enabled = selectedTemplate.Clicks.Count > 1;
 
             BindingOn(Tabs_Clicks.SelectedTab);
+        }
+
+        private void SyncStartApp()
+        {
+            Btn_SelectChangeApp.Text = String.IsNullOrWhiteSpace(selectedTemplate.AppPath)
+                ? "Select app"
+                : "Change app";
+
+            Lbl_AppPath.Text = Path.GetFileName(selectedTemplate.AppPath);
+            Lbl_RemoveApp.Visible = !String.IsNullOrWhiteSpace(selectedTemplate.AppPath);
         }
 
         private void SyncBGMode()
@@ -682,7 +697,16 @@ namespace NWN_ModuleRunner.Forms
         {
             get
             {
-                return AreCoordinatesValid;
+                return IsAppPathValid && AreCoordinatesValid;
+            }
+        }
+
+        private bool IsAppPathValid
+        {
+            get
+            {
+                return String.IsNullOrWhiteSpace(selectedTemplate.AppPath)
+                    || File.Exists(selectedTemplate.AppPath);
             }
         }
 
@@ -749,6 +773,28 @@ namespace NWN_ModuleRunner.Forms
         private void Btn_RemoveTemplate_Click(object sender, EventArgs e)
         {
             RemoveCurrentTemplate();
+        }
+
+        private void Btn_SelectChangeApp_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog
+            {
+                Filter = "Executable files (*.exe)|*.exe",
+            };
+
+            DialogResult result = ofd.ShowDialog(this);
+
+            if (result == DialogResult.OK)
+            {
+                selectedTemplate.AppPath = ofd.FileName;
+                SyncStartApp();
+            }
+        }
+
+        private void Lbl_RemoveApp_Click(object sender, EventArgs e)
+        {
+            selectedTemplate.AppPath = null;
+            SyncStartApp();
         }
 
         private async void Btn_Start_Click(object sender, EventArgs e)

@@ -389,13 +389,20 @@ namespace NWN_ModuleRunner.Services
     {
         public List<Click> Clicks { get; set; } = new List<Click>();
         public String Name { get; private set; }
+        public String AppPath { get; set; }
 
         public const String DEFAULT_TEMPLATE_NAME = "<No name>";
 
 
         public Template(String name, bool init = false)
+            : this(name, null, init)
+        { }
+
+        [JsonConstructor]
+        public Template(String name, String appPath = null, bool init = false)
         {
             Name = name ?? DEFAULT_TEMPLATE_NAME;
+            AppPath = appPath;
             if (init)
                 Clicks.Add(new Click());
         }
@@ -414,7 +421,7 @@ namespace NWN_ModuleRunner.Services
             if (ReferenceEquals(this, template))
                 return true;
 
-            if (Name != template.Name)
+            if (Name != template.Name || !String.Equals(AppPath, template.AppPath, StringComparison.OrdinalIgnoreCase))
                 return false;
 
             bool temp = true;
@@ -454,7 +461,7 @@ namespace NWN_ModuleRunner.Services
 
         public object Clone()
         {
-            Template copy = new Template(Name);
+            Template copy = new Template(Name, AppPath);
 
             foreach (var click in Clicks)
             {
