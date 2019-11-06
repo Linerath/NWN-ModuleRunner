@@ -19,13 +19,7 @@ namespace NWN_ModuleRunner.Services
 
         public ParametersService(String path = DEFAULT_PARAMETERS_PATH)
         {
-            if (String.IsNullOrWhiteSpace(path))
-                throw new ArgumentNullException(nameof(path));
-
-            this.path = path;
-            parameters = ReadOrDefaultParameters(path);
-            NormalizeParameters();
-            prevParameters = parameters.Clone() as Parameters;
+            ReadNewParameters(path);
         }
 
         public ParametersService(Parameters parameters)
@@ -68,6 +62,17 @@ namespace NWN_ModuleRunner.Services
         public void Reset()
         {
             parameters = prevParameters.Clone() as Parameters;
+        }
+
+        public void ReadNewParameters(String path)
+        {
+            if (String.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException(nameof(path));
+
+            this.path = path;
+            parameters = ReadOrDefaultParameters(path);
+            NormalizeParameters();
+            prevParameters = parameters.Clone() as Parameters;
         }
 
         #region Template manipulations
@@ -234,6 +239,7 @@ namespace NWN_ModuleRunner.Services
 
                     serializer.Serialize(jWriter, parameters);
 
+                    this.path = path;
                     prevParameters = parameters.Clone() as Parameters;
 
                     return true;
@@ -260,7 +266,6 @@ namespace NWN_ModuleRunner.Services
 
             // Default click - center screen.
             result.Templates[0].Clicks[0].Point = new Point(w / 2, h / 2);
-            result.SaveParameters = true;
             result.ShowFinalDialog = true;
 
             return result;
@@ -283,18 +288,6 @@ namespace NWN_ModuleRunner.Services
             }
         }
 
-        public bool SaveParameters
-        {
-            get
-            {
-                return parameters.SaveParameters;
-            }
-            set
-            {
-                parameters.SaveParameters = value;
-            }
-        }
-
         public bool ShowFinalDialog
         {
             get
@@ -311,7 +304,6 @@ namespace NWN_ModuleRunner.Services
     public sealed class Parameters : ICloneable
     {
         public List<Template> Templates { get; set; } = new List<Template>(5);
-        public bool SaveParameters { get; set; }
         public bool ShowFinalDialog { get; set; }
 
 
@@ -349,8 +341,7 @@ namespace NWN_ModuleRunner.Services
                     return false;
             }
 
-            result = SaveParameters == paramsObj.SaveParameters
-                && ShowFinalDialog == paramsObj.ShowFinalDialog;
+            result = ShowFinalDialog == paramsObj.ShowFinalDialog;
 
             return result;
         }
@@ -372,7 +363,6 @@ namespace NWN_ModuleRunner.Services
         {
             Parameters result = new Parameters
             {
-                SaveParameters = SaveParameters,
                 ShowFinalDialog = ShowFinalDialog,
             };
 

@@ -51,8 +51,7 @@ namespace NWN_ModuleRunner.Forms
             //SyncScreenParams();
             SyncUIParams();
 
-            hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, keyboardDelegate, IntPtr.Zero, AppDomain.GetCurrentThreadId());
-            hookIds[1] = PInvokeHelper.SetKeyboardLLHook(keyboardLLDelegate);
+            Hook();
         }
 
 
@@ -116,7 +115,7 @@ namespace NWN_ModuleRunner.Forms
             //Cmb_Screens.SelectedIndex = 0;
         }
 
-        private void SyncUIParams()
+        private void SyncUIParams(bool global = false)
         {
             BindingOff();
 
@@ -127,7 +126,7 @@ namespace NWN_ModuleRunner.Forms
             if (selectedTemplate != null)
             {
                 CB_Template.SelectedIndex = GetTemplateIndex(selectedTemplate);
-                if (selectedTemplate.Clicks.Count != Tabs_Clicks.TabCount)
+                if (global || selectedTemplate.Clicks.Count != Tabs_Clicks.TabCount)
                 {
                     Tabs_Clicks.TabPages.Clear();
                     for (int i = 0; i < selectedTemplate.Clicks.Count; ++i)
@@ -334,6 +333,21 @@ namespace NWN_ModuleRunner.Forms
             Btn_BGMode.Text = $"Turn BG mode {(bgMode ? "off" : "on")}";
             Lbl_Hint0.Visible = bgMode;
             Lbl_Hint1.Visible = bgMode;
+        }
+
+        private void Hook()
+        {
+            hookIds[0] = PInvokeHelper.SetWindowsHookEx(PInvokeHelper.HookType.WH_KEYBOARD, keyboardDelegate, IntPtr.Zero, AppDomain.GetCurrentThreadId());
+            hookIds[1] = PInvokeHelper.SetKeyboardLLHook(keyboardLLDelegate);
+        }
+
+        private void Unhook()
+        {
+            foreach (var hookId in hookIds)
+            {
+                if (hookId.ToInt64() > 0)
+                    PInvokeHelper.UnhookWindowsHookEx(hookId);
+            }
         }
 
         private int KeyboardProc(int code, IntPtr wParam, IntPtr lParam)
@@ -759,6 +773,82 @@ namespace NWN_ModuleRunner.Forms
         #endregion
 
         #region Events
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Filter = "JSON files (*.json)|*.json"
+            };
+
+            using (ofd)
+            {
+                DialogResult ofdResult = ofd.ShowDialog(this);
+
+                if (ofdResult == DialogResult.OK && File.Exists(ofd.FileName))
+                {
+                    if (service.AreParametersChanged)
+                    {
+                        ExitForm exitForm = new ExitForm(service);
+                        DialogResult result = exitForm.ShowDialog(this);
+                    }
+
+                    service.ReadNewParameters(ofd.FileName);
+                    selectedTemplate = service.Templates.FirstOrDefault();
+                    SyncUIParams(true);
+                }
+            }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (service.TryWriteParameters())
+            {
+                MessageBox.Show("Saved", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                Error(SAVE_ERROR);
+            }
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog()
+            {
+                AddExtension = true,
+                Filter = "JSON files (*.json)|*.json",
+                DefaultExt = "json",
+            };
+
+            using (sfd)
+            {
+                DialogResult sofdResult = sfd.ShowDialog(this);
+
+                if (sofdResult == DialogResult.OK)
+                {
+                    service.TryWriteParameters(sfd.FileName);
+                }
+            }
+        }
+
+        private void revertChangesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (service.AreParametersChanged)
+            {
+                if (MessageBox.Show("Are you sure?", "Revert", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    service.Reset();
+                    selectedTemplate = service.Templates.FirstOrDefault();
+                    SyncUIParams(true);
+                }
+            }
+        }
+
         private void CB_Template_SelectedIndexChanged(object sender, EventArgs e)
         {
             TrySelectTemplate(CB_Template.SelectedIndex);
@@ -782,12 +872,15 @@ namespace NWN_ModuleRunner.Forms
                 Filter = "Executable files (*.exe)|*.exe",
             };
 
-            DialogResult result = ofd.ShowDialog(this);
-
-            if (result == DialogResult.OK)
+            using (ofd)
             {
-                selectedTemplate.AppPath = ofd.FileName;
-                SyncStartApp();
+                DialogResult result = ofd.ShowDialog(this);
+
+                if (result == DialogResult.OK && File.Exists(ofd.FileName))
+                {
+                    selectedTemplate.AppPath = ofd.FileName;
+                    SyncStartApp();
+                }
             }
         }
 
@@ -895,28 +988,6 @@ namespace NWN_ModuleRunner.Forms
             SyncBGMode();
         }
 
-        private void Btn_Save_Click(object sender, EventArgs e)
-        {
-            if (service.TryWriteParameters())
-            {
-                MessageBox.Show("Saved", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            else
-            {
-                Error(SAVE_ERROR);
-            }
-        }
-
-        private void Btn_Revert_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show("Are you sure?", "Revert", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-            {
-                service.Reset();
-                selectedTemplate = service.Templates.FirstOrDefault();
-                SyncUIParams();
-            }
-        }
-
         private void Tabs_Clicks_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 'q')
@@ -931,11 +1002,7 @@ namespace NWN_ModuleRunner.Forms
             {
                 if (service.AreParametersChanged)
                 {
-                    foreach (var hookId in hookIds)
-                    {
-                        if (hookId.ToInt64() > 0)
-                            PInvokeHelper.UnhookWindowsHookEx(hookId);
-                    }
+                    Unhook();
 
                     ExitForm exitForm = new ExitForm(service);
                     DialogResult result = exitForm.ShowDialog(this);
@@ -944,11 +1011,8 @@ namespace NWN_ModuleRunner.Forms
             }
             else
             {
-                if (service.SaveParameters)
-                {
-                    if (!service.TryWriteParameters())
-                        Error(SAVE_ERROR);
-                }
+                if (!service.TryWriteParameters())
+                    Error(SAVE_ERROR);
             }
         }
 

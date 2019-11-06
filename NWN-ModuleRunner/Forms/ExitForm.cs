@@ -19,9 +19,8 @@ namespace NWN_ModuleRunner.Forms
         }
 
 
-        private void Btn_Y_Click(object sender, EventArgs e)
+        private void SaveAndClose()
         {
-            service.ShowFinalDialog = !CB_Stop.Checked;
             if (!service.TryWriteParameters())
                 MessageBox.Show(SAVE_ERROR, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
@@ -29,18 +28,19 @@ namespace NWN_ModuleRunner.Forms
             Close();
         }
 
+        private void Btn_Y_Click(object sender, EventArgs e)
+        {
+            SaveAndClose();
+        }
+
+        private void Btn_YR_Click(object sender, EventArgs e)
+        {
+            service.ShowFinalDialog = false;
+            SaveAndClose();
+        }
+
         private void Btn_N_Click(object sender, EventArgs e)
         {
-            service.ShowFinalDialog = !CB_Stop.Checked;
-
-            ParametersService newService = new ParametersService(service.path);
-
-            if (newService.ShowFinalDialog != !CB_Stop.Checked)
-            {
-                newService.ShowFinalDialog = !newService.ShowFinalDialog;
-                newService.TryWriteParameters();
-            }
-
             DialogResult = DialogResult.OK;
             Close();
         }

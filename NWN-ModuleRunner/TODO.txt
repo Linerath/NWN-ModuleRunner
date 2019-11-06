@@ -1,11 +1,9 @@
 TODO:
- "save as"
  hot keys for templates
  keys combinations
  template rename
  smooth mouse movement
  keyboad button clicking
- menu
  attractive UI
  saving mouse movement (real-time)
  logging
@@ -20,3 +18,5 @@ DONE:
  click test 30.10.19
  break clicking 01.11.19
  process (application) 04.11.19
+ "save as" 06.11.19
+ menu 06.11.19
