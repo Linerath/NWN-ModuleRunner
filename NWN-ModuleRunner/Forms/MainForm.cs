@@ -37,10 +37,26 @@ namespace NWN_ModuleRunner.Forms
         private const String ERROR = "Critical error has occured. Open log file for details.";
         private const String SAVE_ERROR = "Error has occured while saving parameters. Open log file for details.";
 
+        private readonly Dictionary<KeyPurpose, Keys> hotkeys = new Dictionary<KeyPurpose, Keys>
+        {
+            [KeyPurpose.FirstTemplate] = Keys.F1,
+            [KeyPurpose.SecondTemplate] = Keys.F2,
+            [KeyPurpose.ThirdTemplate] = Keys.F3,
+            [KeyPurpose.FourthTemplate] = Keys.F4,
+
+            [KeyPurpose.Start] = Keys.F5,
+            [KeyPurpose.Stop] = Keys.F6,
+            [KeyPurpose.SetPoint] = Keys.F9,
+            [KeyPurpose.AddClick] = Keys.F12,
+        };
+
 
         public MainForm()
         {
             InitializeComponent();
+            Lbl_Hint0.Text = $"Press \"{hotkeys[KeyPurpose.Start]}\" to start";
+            Lbl_Hint1.Text = $"Press \"{hotkeys[KeyPurpose.AddClick]}\" to create new click";
+            Lbl_Hint2.Text = $"Press \"{hotkeys[KeyPurpose.SetPoint]}\" to set coordinates from current cursor position";
 
             keyboardDelegate = new PInvokeHelper.HookProc(KeyboardProc);
             keyboardLLDelegate = new PInvokeHelper.HookProc(KeyboardProcLL);
@@ -362,33 +378,33 @@ namespace NWN_ModuleRunner.Forms
 
                     if (performs)
                     {
-                        if (keyPressed == Keys.F6)
+                        if (keyPressed == hotkeys[KeyPurpose.Stop]
+                         || keyPressed == hotkeys[KeyPurpose.FirstTemplate] || keyPressed == hotkeys[KeyPurpose.SecondTemplate]
+                         || keyPressed == hotkeys[KeyPurpose.ThirdTemplate] || keyPressed == hotkeys[KeyPurpose.FourthTemplate])
                         {
                             Stop();
                         }
                     }
-                    else
+
+                    if (keyPressed == hotkeys[KeyPurpose.FirstTemplate])
                     {
-                        if (keyPressed == Keys.F1)
-                        {
-                            TrySelectTemplate(0);
-                        }
-                        else if (keyPressed == Keys.F2)
-                        {
-                            TrySelectTemplate(1);
-                        }
-                        else if (keyPressed == Keys.F3)
-                        {
-                            TrySelectTemplate(2);
-                        }
-                        else if (keyPressed == Keys.F4)
-                        {
-                            TrySelectTemplate(3);
-                        }
-                        if (keyPressed == Keys.F9)
-                        {
-                            ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
-                        }
+                        TrySelectTemplate(0);
+                    }
+                    else if (keyPressed == hotkeys[KeyPurpose.SecondTemplate])
+                    {
+                        TrySelectTemplate(1);
+                    }
+                    else if (keyPressed == hotkeys[KeyPurpose.ThirdTemplate])
+                    {
+                        TrySelectTemplate(2);
+                    }
+                    else if (keyPressed == hotkeys[KeyPurpose.FourthTemplate])
+                    {
+                        TrySelectTemplate(3);
+                    }
+                    if (keyPressed == hotkeys[KeyPurpose.SetPoint])
+                    {
+                        ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
                     }
                     #endregion
                 }
@@ -407,38 +423,41 @@ namespace NWN_ModuleRunner.Forms
 
                     if (performs)
                     {
-                        if (keyPressed == Keys.F6)
+                        if (keyPressed == hotkeys[KeyPurpose.Stop]
+                         || (bgMode &&  (keyPressed == hotkeys[KeyPurpose.FirstTemplate] || keyPressed == hotkeys[KeyPurpose.SecondTemplate]
+                         || keyPressed == hotkeys[KeyPurpose.ThirdTemplate] || keyPressed == hotkeys[KeyPurpose.FourthTemplate])))
                         {
                             Stop();
                         }
                     }
-                    else if (bgMode)
+
+                    if (bgMode)
                     {
-                        if (keyPressed == Keys.F1)
+                        if (keyPressed == hotkeys[KeyPurpose.FirstTemplate])
                         {
                             TrySelectTemplate(0);
                         }
-                        else if (keyPressed == Keys.F2)
+                        else if (keyPressed == hotkeys[KeyPurpose.SecondTemplate])
                         {
                             TrySelectTemplate(1);
                         }
-                        else if (keyPressed == Keys.F3)
+                        else if (keyPressed == hotkeys[KeyPurpose.ThirdTemplate])
                         {
                             TrySelectTemplate(2);
                         }
-                        else if (keyPressed == Keys.F4)
+                        else if (keyPressed == hotkeys[KeyPurpose.FourthTemplate])
                         {
                             TrySelectTemplate(3);
                         }
-                        else if (keyPressed == Keys.F5)
+                        else if (keyPressed == hotkeys[KeyPurpose.Start])
                         {
                             Btn_Start_Click(null, null);
                         }
-                        else if (keyPressed == Keys.F9)
+                        else if (keyPressed == hotkeys[KeyPurpose.SetPoint])
                         {
                             ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
                         }
-                        else if (keyPressed == Keys.F12)
+                        else if (keyPressed == hotkeys[KeyPurpose.AddClick])
                         {
                             AddClick();
                         }
@@ -896,7 +915,7 @@ namespace NWN_ModuleRunner.Forms
             Lbl_Hint0.Visible = false;
             Lbl_Hint1.Visible = true;
             String oldText = Lbl_Hint1.Text;
-            Lbl_Hint1.Text = "Press \"F6\" to stop performing";
+            Lbl_Hint1.Text = $"Press \"{hotkeys[KeyPurpose.Stop]}\" to stop performing";
             Lbl_Hint2.Visible = false;
             Enabled = false;
 
@@ -1031,7 +1050,7 @@ namespace NWN_ModuleRunner.Forms
         #endregion
     }
 
-    internal enum ControlType
+    internal enum ControlType : byte
     {
         CoordinateX,
         CoordinateY,
@@ -1039,5 +1058,17 @@ namespace NWN_ModuleRunner.Forms
         Delay,
         Enabled,
         RightClick,
+    }
+
+    internal enum KeyPurpose : byte
+    {
+        FirstTemplate,
+        SecondTemplate,
+        ThirdTemplate,
+        FourthTemplate,
+        Start,
+        Stop,
+        SetPoint,
+        AddClick,
     }
 }

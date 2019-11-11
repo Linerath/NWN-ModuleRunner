@@ -49,14 +49,14 @@
             this.Lbl_RemoveApp = new System.Windows.Forms.Label();
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.revertChangesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.MainMenu.SuspendLayout();
@@ -133,9 +133,9 @@
             this.Lbl_Hint1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Lbl_Hint1.Location = new System.Drawing.Point(90, 32);
             this.Lbl_Hint1.Name = "Lbl_Hint1";
-            this.Lbl_Hint1.Size = new System.Drawing.Size(184, 17);
+            this.Lbl_Hint1.Size = new System.Drawing.Size(36, 17);
             this.Lbl_Hint1.TabIndex = 20;
-            this.Lbl_Hint1.Text = "Press \"F12\" to create new click";
+            this.Lbl_Hint1.Text = "hint1";
             this.Lbl_Hint1.Visible = false;
             // 
             // Lbl_Hint0
@@ -144,9 +144,9 @@
             this.Lbl_Hint0.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Lbl_Hint0.Location = new System.Drawing.Point(125, 15);
             this.Lbl_Hint0.Name = "Lbl_Hint0";
-            this.Lbl_Hint0.Size = new System.Drawing.Size(112, 17);
+            this.Lbl_Hint0.Size = new System.Drawing.Size(36, 17);
             this.Lbl_Hint0.TabIndex = 19;
-            this.Lbl_Hint0.Text = "Press \"F5\" to start";
+            this.Lbl_Hint0.Text = "hint0";
             this.Lbl_Hint0.Visible = false;
             // 
             // Lbl_Hint2
@@ -155,9 +155,9 @@
             this.Lbl_Hint2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Lbl_Hint2.Location = new System.Drawing.Point(10, 55);
             this.Lbl_Hint2.Name = "Lbl_Hint2";
-            this.Lbl_Hint2.Size = new System.Drawing.Size(345, 17);
+            this.Lbl_Hint2.Size = new System.Drawing.Size(36, 17);
             this.Lbl_Hint2.TabIndex = 18;
-            this.Lbl_Hint2.Text = "Press \"F9\" to set coordinates from current cursor position";
+            this.Lbl_Hint2.Text = "hint2";
             // 
             // Btn_Clear
             // 
@@ -313,24 +313,42 @@
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
+            // newToolStripMenuItem
+            // 
+            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.newToolStripMenuItem.Text = "New";
+            this.newToolStripMenuItem.Visible = false;
+            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(109, 6);
+            // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(109, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.saveAsToolStripMenuItem.Text = "Save as";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
@@ -345,27 +363,9 @@
             // revertChangesToolStripMenuItem
             // 
             this.revertChangesToolStripMenuItem.Name = "revertChangesToolStripMenuItem";
-            this.revertChangesToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.revertChangesToolStripMenuItem.Size = new System.Drawing.Size(154, 22);
             this.revertChangesToolStripMenuItem.Text = "Revert changes";
             this.revertChangesToolStripMenuItem.Click += new System.EventHandler(this.revertChangesToolStripMenuItem_Click);
-            // 
-            // newToolStripMenuItem
-            // 
-            this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.newToolStripMenuItem.Text = "New";
-            this.newToolStripMenuItem.Visible = false;
-            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // MainForm
             // 
