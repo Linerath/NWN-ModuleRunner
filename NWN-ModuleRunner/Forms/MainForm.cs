@@ -26,6 +26,7 @@ namespace NWN_ModuleRunner.Forms
         private bool performs = false;
         private bool stop = false;
         private bool bgMode = false;
+        private bool showHotkeys = false;
 
         private const String NUD_X = "NUD_X";
         private const String NUD_Y = "NUD_Y";
@@ -54,9 +55,9 @@ namespace NWN_ModuleRunner.Forms
         public MainForm()
         {
             InitializeComponent();
-            Lbl_Hint0.Text = $"Press \"{hotkeys[KeyPurpose.Start]}\" to start";
-            Lbl_Hint1.Text = $"Press \"{hotkeys[KeyPurpose.AddClick]}\" to create new click";
-            Lbl_Hint2.Text = $"Press \"{hotkeys[KeyPurpose.SetPoint]}\" to set coordinates from current cursor position";
+            Lbl_Hint0.Text = $"{hotkeys[KeyPurpose.Start]} - start";
+            Lbl_Hint1.Text = $"{hotkeys[KeyPurpose.AddClick]} - create new click";
+            Lbl_Hint2.Text = $"{hotkeys[KeyPurpose.SetPoint]} - set coordinates from current cursor position";
 
             keyboardDelegate = new PInvokeHelper.HookProc(KeyboardProc);
             keyboardLLDelegate = new PInvokeHelper.HookProc(KeyboardProcLL);
@@ -66,6 +67,7 @@ namespace NWN_ModuleRunner.Forms
 
             //SyncScreenParams();
             SyncUIParams();
+            SyncHints();
 
             Hook();
         }
@@ -260,8 +262,10 @@ namespace NWN_ModuleRunner.Forms
                             Text = "clone",
                             Font = new Font("Segoe UI", 8),
                             Size = new Size(50, 23),
-                            Location = new Point(300, 107),
+                            FlatStyle = FlatStyle.Flat,
+                            Location = new Point(317, 107),
                         };
+                        clone.FlatAppearance.BorderColor = Color.Silver;
                         clone.Click += Btn_Clone_Click;
 
                         // Test button
@@ -270,8 +274,10 @@ namespace NWN_ModuleRunner.Forms
                             Text = "test",
                             Font = new Font("Segoe UI", 8),
                             Size = new Size(40, 23),
-                            Location = new Point(254, 107),
+                            FlatStyle = FlatStyle.Flat,
+                            Location = new Point(275, 107),
                         };
+                        test.FlatAppearance.BorderColor = Color.Silver;
                         test.Click += Btn_Test_Click;
 
                         Tabs_Clicks.TabPages[i].Controls.Add(x);
@@ -346,9 +352,19 @@ namespace NWN_ModuleRunner.Forms
 
         private void SyncBGMode()
         {
-            Btn_BGMode.Text = $"Turn BG mode {(bgMode ? "off" : "on")}";
+            Btn_BGMode.Text = $"BG mode - {(bgMode ? "on" : "off")}";
             Lbl_Hint0.Visible = bgMode;
             Lbl_Hint1.Visible = bgMode;
+        }
+
+        private void SyncHints()
+        {
+            Btn_Hotkeys.Text = showHotkeys
+                ? "Hotkeys ▲"
+                : "Hotkeys ▼";
+            Size = showHotkeys
+                ? new Size(418, 483)
+                : new Size(418, 399);
         }
 
         private void Hook()
@@ -424,7 +440,7 @@ namespace NWN_ModuleRunner.Forms
                     if (performs)
                     {
                         if (keyPressed == hotkeys[KeyPurpose.Stop]
-                         || (bgMode &&  (keyPressed == hotkeys[KeyPurpose.FirstTemplate] || keyPressed == hotkeys[KeyPurpose.SecondTemplate]
+                         || (bgMode && (keyPressed == hotkeys[KeyPurpose.FirstTemplate] || keyPressed == hotkeys[KeyPurpose.SecondTemplate]
                          || keyPressed == hotkeys[KeyPurpose.ThirdTemplate] || keyPressed == hotkeys[KeyPurpose.FourthTemplate])))
                         {
                             Stop();
@@ -1003,8 +1019,13 @@ namespace NWN_ModuleRunner.Forms
         private void Btn_BGMode_Click(object sender, EventArgs e)
         {
             bgMode = !bgMode;
-
             SyncBGMode();
+        }
+
+        private void Btn_Hotkeys_Click(object sender, EventArgs e)
+        {
+            showHotkeys = !showHotkeys;
+            SyncHints();
         }
 
         private void Tabs_Clicks_KeyPress(object sender, KeyPressEventArgs e)
@@ -1033,19 +1054,6 @@ namespace NWN_ModuleRunner.Forms
                 if (!service.TryWriteParameters())
                     Error(SAVE_ERROR);
             }
-        }
-
-        private void Btn_Debug_Click(object sender, EventArgs e)
-        {
-            //var s = (Tabs_Clicks.TabPages[0].Controls[NUD_X] as NumericUpDown);
-
-            //s.V
-
-            //MessageBox.Show(s.ToString());
-
-            //(this[Tabs_Clicks.TabPages[1], ControlType.CoordinateX] as NumericUpDown).Value += 10;
-
-            PInvokeHelper.mouse_event(MouseEvents.MOUSEEVENTF_MOVE | MouseEvents.MOUSEEVENTF_ABSOLUTE, 100, 100, 0, IntPtr.Zero);
         }
         #endregion
     }
