@@ -69,7 +69,7 @@
             // 
             this.Btn_Start.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.Btn_Start.BackColor = System.Drawing.SystemColors.Control;
-            this.Btn_Start.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(192)))));
+            this.Btn_Start.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.Btn_Start.FlatAppearance.BorderSize = 2;
             this.Btn_Start.FlatAppearance.MouseOverBackColor = System.Drawing.Color.CornflowerBlue;
             this.Btn_Start.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -294,9 +294,8 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.newToolStripMenuItem.Text = "New";
-            this.newToolStripMenuItem.Visible = false;
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // toolStripSeparator1

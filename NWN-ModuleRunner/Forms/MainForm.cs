@@ -28,6 +28,8 @@ namespace NWN_ModuleRunner.Forms
         private bool bgMode = false;
         private bool showHotkeys = false;
 
+        private const String DEFAULT_PARAMETERS_PATH = "../../parameters.json";
+
         private const String NUD_X = "NUD_X";
         private const String NUD_Y = "NUD_Y";
         private const String NUD_CLICKS_COUNT = "NUD_CLICKS_COUNT";
@@ -62,7 +64,7 @@ namespace NWN_ModuleRunner.Forms
             keyboardDelegate = new PInvokeHelper.HookProc(KeyboardProc);
             keyboardLLDelegate = new PInvokeHelper.HookProc(KeyboardProcLL);
 
-            service = new ParametersService();
+            service = new ParametersService(DEFAULT_PARAMETERS_PATH);
             selectedTemplate = service.Templates.FirstOrDefault();
 
             //SyncScreenParams();
@@ -155,14 +157,14 @@ namespace NWN_ModuleRunner.Forms
                         Tabs_Clicks.TabPages.Add(page);
 
                         // X
-                        Label x = new Label()
+                        Label x = new Label
                         {
                             Text = "X",
                             Font = new Font("Segoe UI", 10),
                             Size = new Size(19, 17),
                             Location = new Point(27, 34),
                         };
-                        NumericUpDown nud_x = new NumericUpDown()
+                        NumericUpDown nud_x = new NumericUpDown
                         {
                             Minimum = 0,
                             Maximum = Screen.PrimaryScreen.Bounds.Width,
@@ -176,14 +178,14 @@ namespace NWN_ModuleRunner.Forms
                             : 0;
 
                         // Y
-                        Label y = new Label()
+                        Label y = new Label
                         {
                             Text = "Y",
                             Font = new Font("Segoe UI", 10),
                             Size = new Size(19, 17),
                             Location = new Point(27, 65),
                         };
-                        NumericUpDown nud_y = new NumericUpDown()
+                        NumericUpDown nud_y = new NumericUpDown
                         {
                             Minimum = 0,
                             Maximum = Screen.PrimaryScreen.Bounds.Height,
@@ -197,14 +199,14 @@ namespace NWN_ModuleRunner.Forms
                             : 0;
 
                         // Clicks count
-                        Label count = new Label()
+                        Label count = new Label
                         {
                             Text = "Clicks count",
                             Font = new Font("Segoe UI", 9),
                             Size = new Size(75, 17),
                             Location = new Point(150, 34),
                         };
-                        NumericUpDown nud_count = new NumericUpDown()
+                        NumericUpDown nud_count = new NumericUpDown
                         {
                             Minimum = 1,
                             Maximum = 10,
@@ -216,14 +218,14 @@ namespace NWN_ModuleRunner.Forms
                         };
 
                         // Delay before
-                        Label delay = new Label()
+                        Label delay = new Label
                         {
                             Text = "Delay before (ms)",
                             Font = new Font("Segoe UI", 9),
                             Size = new Size(75, 17),
                             Location = new Point(150, 65),
                         };
-                        NumericUpDown nud_delay = new NumericUpDown()
+                        NumericUpDown nud_delay = new NumericUpDown
                         {
                             Minimum = 0,
                             Maximum = 10000, // 10 sec - max delay
@@ -235,7 +237,7 @@ namespace NWN_ModuleRunner.Forms
                         };
 
                         // Enabled
-                        CheckBox enabled = new CheckBox()
+                        CheckBox enabled = new CheckBox
                         {
                             Text = "Enabled",
                             Name = CB_Enabled,
@@ -246,7 +248,7 @@ namespace NWN_ModuleRunner.Forms
                         };
 
                         // Right
-                        CheckBox right = new CheckBox()
+                        CheckBox right = new CheckBox
                         {
                             Text = "Right click",
                             Name = CB_Right,
@@ -257,7 +259,7 @@ namespace NWN_ModuleRunner.Forms
                         };
 
                         // Clone button
-                        Button clone = new Button()
+                        Button clone = new Button
                         {
                             Text = "clone",
                             Font = new Font("Segoe UI", 8),
@@ -269,7 +271,7 @@ namespace NWN_ModuleRunner.Forms
                         clone.Click += Btn_Clone_Click;
 
                         // Test button
-                        Button test = new Button()
+                        Button test = new Button
                         {
                             Text = "test",
                             Font = new Font("Segoe UI", 8),
@@ -810,7 +812,9 @@ namespace NWN_ModuleRunner.Forms
         #region Events
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            service = new ParametersService();
+            selectedTemplate = service.Templates.FirstOrDefault();
+            SyncUIParams();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -841,7 +845,11 @@ namespace NWN_ModuleRunner.Forms
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (service.TryWriteParameters())
+            if (service.IsNew)
+            {
+                saveAsToolStripMenuItem_Click(sender, e);
+            }
+            else if (service.TryWriteParameters())
             {
                 MessageBox.Show("Saved", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -1038,7 +1046,7 @@ namespace NWN_ModuleRunner.Forms
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (service.ShowFinalDialog)
+            if (service.ShowFinalDialog || service.IsNew)
             {
                 if (service.AreParametersChanged)
                 {

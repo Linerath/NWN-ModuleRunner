@@ -21,8 +21,31 @@ namespace NWN_ModuleRunner.Forms
 
         private void SaveAndClose()
         {
-            if (!service.TryWriteParameters())
-                MessageBox.Show(SAVE_ERROR, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (service.IsNew)
+            {
+                SaveFileDialog sfd = new SaveFileDialog()
+                {
+                    AddExtension = true,
+                    Filter = "JSON files (*.json)|*.json",
+                    DefaultExt = "json",
+                };
+
+                using (sfd)
+                {
+                    DialogResult sofdResult = sfd.ShowDialog(this);
+
+                    if (sofdResult == DialogResult.OK)
+                    {
+                        if (!service.TryWriteParameters(sfd.FileName))
+                            MessageBox.Show(SAVE_ERROR, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            else
+            {
+                if (!service.TryWriteParameters())
+                    MessageBox.Show(SAVE_ERROR, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             DialogResult = DialogResult.OK;
             Close();

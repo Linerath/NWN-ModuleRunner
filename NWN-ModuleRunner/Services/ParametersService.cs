@@ -13,11 +13,15 @@ namespace NWN_ModuleRunner.Services
         private Parameters parameters;
         private Parameters prevParameters;
 
-        public const String DEFAULT_PARAMETERS_PATH = "../../parameters.json";
         public String path { get; private set; }
 
 
-        public ParametersService(String path = DEFAULT_PARAMETERS_PATH)
+        public ParametersService()
+        {
+            parameters = GetDefaultParameters();
+        }
+
+        public ParametersService(String path)
         {
             ReadNewParameters(path);
         }
@@ -61,7 +65,13 @@ namespace NWN_ModuleRunner.Services
 
         public void Reset()
         {
-            parameters = prevParameters.Clone() as Parameters;
+            if (String.IsNullOrWhiteSpace(path))
+            {
+                parameters = GetDefaultParameters();
+                prevParameters = null;
+            }
+            else
+                parameters = prevParameters.Clone() as Parameters;
         }
 
         public void ReadNewParameters(String path)
@@ -193,9 +203,9 @@ namespace NWN_ModuleRunner.Services
         #endregion
 
         #region Read/Write/Default
-        private Parameters ReadOrDefaultParameters(String path = DEFAULT_PARAMETERS_PATH)
+        private Parameters ReadOrDefaultParameters(String path)
         {
-            if (!File.Exists(DEFAULT_PARAMETERS_PATH))
+            if (!File.Exists(path))
                 return GetDefaultParameters();
 
             try
@@ -280,6 +290,14 @@ namespace NWN_ModuleRunner.Services
             }
         }
 
+        public bool IsNew
+        {
+            get
+            {
+                return String.IsNullOrWhiteSpace(path);
+            }
+        }
+
         public List<Template> Templates
         {
             get
@@ -324,12 +342,10 @@ namespace NWN_ModuleRunner.Services
             if (Object.ReferenceEquals(this, paramsObj))
                 return true;
 
-            bool result = paramsObj != null;
-
-            if (!result)
+            if (paramsObj == null)
                 return false;
 
-            result = (Templates == null && paramsObj.Templates == null)
+            bool result = (Templates == null && paramsObj.Templates == null)
                 || (Templates != null && paramsObj.Templates != null && Templates.Count == paramsObj.Templates.Count);
 
             if (!result)
