@@ -27,6 +27,9 @@ namespace NWN_ModuleRunner.Forms
         private bool stop = false;
         private bool bgMode = false;
         private bool showHotkeys = false;
+        private bool log = false;
+
+        private LogForm logForm = new LogForm();
 
         private const String DEFAULT_PARAMETERS_PATH = "../../parameters.json";
 
@@ -66,6 +69,16 @@ namespace NWN_ModuleRunner.Forms
 
             service = new ParametersService(DEFAULT_PARAMETERS_PATH);
             selectedTemplate = service.Templates.FirstOrDefault();
+
+            logForm.FormClosing += (object sndr, FormClosingEventArgs args) =>
+            {
+                if (args.CloseReason == CloseReason.UserClosing)
+                {
+                    args.Cancel = true;
+                    log = false;
+                    logForm.Hide();
+                }
+            };
 
             //SyncScreenParams();
             SyncUIParams();
@@ -394,6 +407,9 @@ namespace NWN_ModuleRunner.Forms
                     #region K
                     Keys keyPressed = (Keys)wParam.ToInt32();
 
+                    if (log)
+                        LogPressedKey(keyPressed.ToString());
+
                     if (performs)
                     {
                         if (keyPressed == hotkeys[KeyPurpose.Stop]
@@ -438,6 +454,9 @@ namespace NWN_ModuleRunner.Forms
                 if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
                 {
                     Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
+
+                    if (log)
+                        LogPressedKey(keyPressed.ToString(), true);
 
                     if (performs)
                     {
@@ -576,12 +595,6 @@ namespace NWN_ModuleRunner.Forms
         private void Error(String text)
         {
             MessageBox.Show(text, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        // PROTOTYPE
-        private void UpdateCursorPosition()
-        {
-            //Lbl_CursorXY.Text = $"{Cursor.Position.X};{Cursor.Position.Y}";
         }
 
         #region Template/clicks manipulations
@@ -1044,6 +1057,16 @@ namespace NWN_ModuleRunner.Forms
                 SelectNextTab();
         }
 
+        private void Btn_Log_Click(object sender, EventArgs e)
+        {
+            log = !log;
+
+            if (log)
+                logForm.Show(this);
+            else
+                logForm.Hide();
+        }
+
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (service.ShowFinalDialog || service.IsNew)
@@ -1062,6 +1085,18 @@ namespace NWN_ModuleRunner.Forms
                 if (!service.TryWriteParameters())
                     Error(SAVE_ERROR);
             }
+        }
+        #endregion
+
+        #region Log
+        private void LogPressedKey(String key, bool lowLevel = false)
+        {
+            WriteLog($"{(lowLevel ? "[L]" : "")} {key} has been pressed");
+        }
+
+        private void WriteLog(String text)
+        {
+            logForm.WriteLog(text);
         }
         #endregion
     }

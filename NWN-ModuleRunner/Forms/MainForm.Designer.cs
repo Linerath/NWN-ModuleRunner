@@ -55,10 +55,11 @@
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.revertChangesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Tabs_Clicks = new System.Windows.Forms.TabControl();
-            this.Btn_Hotkeys = new System.Windows.Forms.Button();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.Btn_Hotkeys = new System.Windows.Forms.Button();
+            this.Btn_Log = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.MainMenu.SuspendLayout();
             this.Tabs_Clicks.SuspendLayout();
@@ -294,7 +295,7 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
@@ -354,6 +355,39 @@
             this.Tabs_Clicks.Size = new System.Drawing.Size(378, 159);
             this.Tabs_Clicks.TabIndex = 30;
             // 
+            // tabPage1
+            // 
+            this.tabPage1.Controls.Add(this.button2);
+            this.tabPage1.Controls.Add(this.button1);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Size = new System.Drawing.Size(370, 133);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "tabPage1";
+            this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // button2
+            // 
+            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.button2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button2.Location = new System.Drawing.Point(277, 107);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(40, 23);
+            this.button2.TabIndex = 33;
+            this.button2.Text = "Clone";
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.button1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.button1.Location = new System.Drawing.Point(317, 107);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(50, 23);
+            this.button1.TabIndex = 32;
+            this.button1.Text = "Clone";
+            this.button1.UseVisualStyleBackColor = true;
+            // 
             // Btn_Hotkeys
             // 
             this.Btn_Hotkeys.Anchor = System.Windows.Forms.AnchorStyles.Top;
@@ -368,44 +402,26 @@
             this.Btn_Hotkeys.UseVisualStyleBackColor = true;
             this.Btn_Hotkeys.Click += new System.EventHandler(this.Btn_Hotkeys_Click);
             // 
-            // tabPage1
+            // Btn_Log
             // 
-            this.tabPage1.Controls.Add(this.button2);
-            this.tabPage1.Controls.Add(this.button1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Size = new System.Drawing.Size(370, 133);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "tabPage1";
-            this.tabPage1.UseVisualStyleBackColor = true;
-            // 
-            // button1
-            // 
-            this.button1.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.button1.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button1.Location = new System.Drawing.Point(317, 107);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(50, 23);
-            this.button1.TabIndex = 32;
-            this.button1.Text = "Clone";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.button2.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button2.Location = new System.Drawing.Point(277, 107);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(40, 23);
-            this.button2.TabIndex = 33;
-            this.button2.Text = "Clone";
-            this.button2.UseVisualStyleBackColor = true;
+            this.Btn_Log.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.Btn_Log.FlatAppearance.BorderColor = System.Drawing.Color.Silver;
+            this.Btn_Log.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Btn_Log.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.Btn_Log.Location = new System.Drawing.Point(260, 325);
+            this.Btn_Log.Name = "Btn_Log";
+            this.Btn_Log.Size = new System.Drawing.Size(41, 30);
+            this.Btn_Log.TabIndex = 32;
+            this.Btn_Log.Text = "log";
+            this.Btn_Log.UseVisualStyleBackColor = true;
+            this.Btn_Log.Click += new System.EventHandler(this.Btn_Log_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(402, 444);
+            this.Controls.Add(this.Btn_Log);
             this.Controls.Add(this.Btn_Hotkeys);
             this.Controls.Add(this.Tabs_Clicks);
             this.Controls.Add(this.MainMenu);
@@ -474,6 +490,7 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button Btn_Log;
     }
 }
 

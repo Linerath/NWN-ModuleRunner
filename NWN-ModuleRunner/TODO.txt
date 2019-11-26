@@ -6,7 +6,7 @@ TODO:
  keyboad button clicking
  attractive UI
  saving mouse movement (real-time)
- logging
+ logging - 1st part 26.11.19 (form log)
  default delay
  click name
  process (any file/explorer/http)
