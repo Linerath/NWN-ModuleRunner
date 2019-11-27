@@ -1,6 +1,4 @@
 TODO:
- hot keys for templates
- keys combinations
  template rename
  smooth mouse movement
  keyboad button clicking
@@ -20,3 +18,5 @@ DONE:
  process (application) 04.11.19
  "save as" 06.11.19
  menu 06.11.19
+ hot keys for templates 11.19
+ keys combinations 27.11.19

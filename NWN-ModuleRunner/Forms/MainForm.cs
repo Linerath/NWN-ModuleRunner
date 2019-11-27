@@ -24,6 +24,7 @@ namespace NWN_ModuleRunner.Forms
         private PInvokeHelper.HookProc keyboardLLDelegate = null;
 
         private bool performs = false;
+        private bool templateModifierPressed = false;
         private bool stop = false;
         private bool bgMode = false;
         private bool showHotkeys = false;
@@ -49,6 +50,18 @@ namespace NWN_ModuleRunner.Forms
             [KeyPurpose.SecondTemplate] = Keys.F2,
             [KeyPurpose.ThirdTemplate] = Keys.F3,
             [KeyPurpose.FourthTemplate] = Keys.F4,
+
+            [KeyPurpose.LLTemplateModifier] = Keys.LControlKey,
+            [KeyPurpose.TemplateLL1] = Keys.D1,
+            [KeyPurpose.TemplateLL2] = Keys.D2,
+            [KeyPurpose.TemplateLL3] = Keys.D3,
+            [KeyPurpose.TemplateLL4] = Keys.D4,
+            [KeyPurpose.TemplateLL5] = Keys.D5,
+            [KeyPurpose.TemplateLL6] = Keys.D6,
+            [KeyPurpose.TemplateLL7] = Keys.D7,
+            [KeyPurpose.TemplateLL8] = Keys.D8,
+            [KeyPurpose.TemplateLL9] = Keys.D9,
+            [KeyPurpose.TemplateLL10] = Keys.D0,
 
             [KeyPurpose.Start] = Keys.F5,
             [KeyPurpose.Stop] = Keys.F6,
@@ -453,6 +466,7 @@ namespace NWN_ModuleRunner.Forms
             {
                 if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYDOWN)
                 {
+                    int i = Marshal.ReadInt32(lParam);
                     Keys keyPressed = (Keys)Marshal.ReadInt32(lParam);
 
                     if (log)
@@ -461,8 +475,8 @@ namespace NWN_ModuleRunner.Forms
                     if (performs)
                     {
                         if (keyPressed == hotkeys[KeyPurpose.Stop]
-                         || (bgMode && (keyPressed == hotkeys[KeyPurpose.FirstTemplate] || keyPressed == hotkeys[KeyPurpose.SecondTemplate]
-                         || keyPressed == hotkeys[KeyPurpose.ThirdTemplate] || keyPressed == hotkeys[KeyPurpose.FourthTemplate])))
+                         || (bgMode && templateModifierPressed && (keyPressed == hotkeys[KeyPurpose.TemplateLL1] || keyPressed == hotkeys[KeyPurpose.TemplateLL2]
+                         || keyPressed == hotkeys[KeyPurpose.TemplateLL3] || keyPressed == hotkeys[KeyPurpose.TemplateLL4])))
                         {
                             Stop();
                         }
@@ -470,34 +484,75 @@ namespace NWN_ModuleRunner.Forms
 
                     if (bgMode)
                     {
-                        if (keyPressed == hotkeys[KeyPurpose.FirstTemplate])
+                        if (keyPressed == hotkeys[KeyPurpose.LLTemplateModifier])
+                        {
+                            templateModifierPressed = true;
+                        }
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL1])
                         {
                             TrySelectTemplate(0);
                         }
-                        else if (keyPressed == hotkeys[KeyPurpose.SecondTemplate])
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL2])
                         {
                             TrySelectTemplate(1);
                         }
-                        else if (keyPressed == hotkeys[KeyPurpose.ThirdTemplate])
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL3])
                         {
                             TrySelectTemplate(2);
                         }
-                        else if (keyPressed == hotkeys[KeyPurpose.FourthTemplate])
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL4])
                         {
                             TrySelectTemplate(3);
                         }
-                        else if (keyPressed == hotkeys[KeyPurpose.Start])
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL5])
+                        {
+                            TrySelectTemplate(4);
+                        }
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL6])
+                        {
+                            TrySelectTemplate(5);
+                        }
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL7])
+                        {
+                            TrySelectTemplate(6);
+                        }
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL8])
+                        {
+                            TrySelectTemplate(7);
+                        }
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL9])
+                        {
+                            TrySelectTemplate(8);
+                        }
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.TemplateLL10])
+                        {
+                            TrySelectTemplate(9);
+                        }
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.Start])
                         {
                             Btn_Start_Click(null, null);
                         }
-                        else if (keyPressed == hotkeys[KeyPurpose.SetPoint])
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.SetPoint])
                         {
                             ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
                         }
-                        else if (keyPressed == hotkeys[KeyPurpose.AddClick])
+                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.AddClick])
                         {
                             AddClick();
                         }
+                    }
+                }
+                else if (code >= 0 && wParam == (IntPtr)PInvokeHelper.WM_KEYUP)
+                {
+                    int i = Marshal.ReadInt32(lParam);
+                    Keys keyUnpressed = (Keys)Marshal.ReadInt32(lParam);
+
+                    //if (log)
+                    //    LogUnpressedKey(keyUnpressed.ToString(), true);
+
+                    if (keyUnpressed == hotkeys[KeyPurpose.LLTemplateModifier])
+                    {
+                        templateModifierPressed = false;
                     }
                 }
             }
@@ -1091,7 +1146,12 @@ namespace NWN_ModuleRunner.Forms
         #region Log
         private void LogPressedKey(String key, bool lowLevel = false)
         {
-            WriteLog($"{(lowLevel ? "[L]" : "")} {key} has been pressed");
+            WriteLog($"{(lowLevel ? "[L]" : "")} {key} - pressed");
+        }
+
+        private void LogUnpressedKey(String key, bool lowLevel = false)
+        {
+            WriteLog($"{(lowLevel ? "[L]" : "")} {key} - UNPRESSED");
         }
 
         private void WriteLog(String text)
@@ -1117,6 +1177,19 @@ namespace NWN_ModuleRunner.Forms
         SecondTemplate,
         ThirdTemplate,
         FourthTemplate,
+
+        LLTemplateModifier,
+        TemplateLL1,
+        TemplateLL2,
+        TemplateLL3,
+        TemplateLL4,
+        TemplateLL5,
+        TemplateLL6,
+        TemplateLL7,
+        TemplateLL8,
+        TemplateLL9,
+        TemplateLL10,
+
         Start,
         Stop,
         SetPoint,

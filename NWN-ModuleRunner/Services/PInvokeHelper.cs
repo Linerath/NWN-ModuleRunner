@@ -7,6 +7,8 @@ namespace NWN_ModuleRunner.Services
     internal static class PInvokeHelper
     {
         public const int WM_KEYDOWN = 0x0100;
+        public const int WM_KEYUP = 0x0101;
+
 
         [DllImport("User32.dll")]
         public static extern void mouse_event(MouseEvents dwFlags, uint dx, uint dy, uint dwData, IntPtr dwExtraInfo);
