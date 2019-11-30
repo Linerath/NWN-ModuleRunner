@@ -528,15 +528,15 @@ namespace NWN_ModuleRunner.Forms
                         {
                             TrySelectTemplate(9);
                         }
-                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.Start])
+                        else if (keyPressed == hotkeys[KeyPurpose.Start])
                         {
                             Btn_Start_Click(null, null);
                         }
-                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.SetPoint])
+                        else if (keyPressed == hotkeys[KeyPurpose.SetPoint])
                         {
                             ChangeCurrentClickCursorPoint(Cursor.Position.X, Cursor.Position.Y);
                         }
-                        else if (templateModifierPressed && keyPressed == hotkeys[KeyPurpose.AddClick])
+                        else if (keyPressed == hotkeys[KeyPurpose.AddClick])
                         {
                             AddClick();
                         }
